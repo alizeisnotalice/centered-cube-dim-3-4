@@ -1,0 +1,14 @@
+__pycache__/
+.venv/
+dim34-tex.*/
+dim34-verify.*/
+dim34-n3-full.*/
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.xdv

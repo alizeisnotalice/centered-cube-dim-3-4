@@ -1,0 +1,6 @@
+{
+  "audit/035_integral_results.json": "026c325d575d380fd4be096f2e7666823423983b6a0ae15e99ac8da105c1344a",
+  "audit/035_representation_results.json": "f8e2e3f80707401a4cf56b61548e28e06305c3ad63d8ea37545a73cc5e5401b6",
+  "src/round011_sharp_rational_cost.py": "19440f5ab1644f882f283045d894f62fc8033d8fb0a8cd2a98a5c4d2f95858f4",
+  "upper/u11_minimum_global_results.json": "43be4de041c9da823d192ff6d8ef2440c3668f88b13fc52dbff320dd0011d96f"
+}

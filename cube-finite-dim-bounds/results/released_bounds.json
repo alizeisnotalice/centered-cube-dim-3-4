@@ -1,0 +1,79 @@
+{
+  "source_commit": "77be2e97b708bbe58f365b291983a78a32d7ea1d",
+  "source_file": "results/bounds_ledger.json",
+  "tasks": [
+    {
+      "id": "L3",
+      "status": "complete_strict_certificate",
+      "interval": [
+        "575203812404224613608281575992133109687751372091898928600969175210489688457361381452203311/320606919109809280000000000000000000000000000000000000000000000000000000000000000000000000",
+        "14380095310105615340207039399825285902565185523463570451465843956305664344177985572283965141/8015172977745232000000000000000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "new_improvement": true,
+      "certificate": "audit/022_results.json",
+      "public": "482167717377842991882283179477574801392641890014291050323/283174368139841919615520431313000857449005056000000000000",
+      "construction": "lower/n3/round008_certificate_input.json",
+      "simple_display_lower": "17941091664563071/10000000000000000",
+      "comparison_rule": "Must exceed full exact audit/022 upper, not display decimal or earlier checkpoints.",
+      "proof": "audit/022_audit.md"
+    },
+    {
+      "id": "U3",
+      "status": "complete_strict_certificate",
+      "bound": "1979/250",
+      "new_improvement": true,
+      "strict": true,
+      "previous_effective_bound": "8",
+      "certificate": "audit/036_manifest.json",
+      "proof": "audit/036_audit.md",
+      "cost_squared_exact": "1547906585017734375000000000/24707828464688747938727861",
+      "comparison_rule": "Use the certified exact cost upper bound in exact_comparison_threshold, not the rounded display bound 1979/250; reusing tighter archived endpoints is arithmetic sharpening, not a new mechanism.",
+      "public_comparison": "Strictly below checked general benchmark 8; not exhaustive global literature claim.",
+      "exact_comparison_threshold": "sqrt(1547906585017734375000000000/24707828464688747938727861)"
+    },
+    {
+      "id": "L4",
+      "status": "inherited_exact_certificate",
+      "interval": [
+        "29714728298452438328989785171403506553338348218399473135599188868742835555185799179789995160134282851426809085889334508849687500055841680692580114472150275443342632483626266472208914641603932613167731654170107003141033410790358196446862275667399221422319114294809209/15625000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "1901742611100956053055346250969824419413660002947272816129411058089248166682093829643669036652815343458960860898492289662129437495976237271398696002720493349488455524736963573865595246403534684153457643772884503536165301682006880757548746414636076981716865555243892262511/1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "new_improvement": false,
+      "certificate": "baseline/original_certificates.json",
+      "public": "Aldaz A4 (formula in literature table)"
+    },
+    {
+      "id": "U4",
+      "status": "complete_strict_certificate",
+      "bound": "14371/1000",
+      "new_improvement": true,
+      "strict": true,
+      "previous_effective_bound": "14753/1000",
+      "certificate": "audit/037_manifest.json",
+      "proof": "audit/037_audit.md",
+      "cost_cube_exact": "(6244212653911047061276408/1944624818861484527587890625)*pi^12",
+      "comparison_rule": "Use the certified exact cost upper bound in exact_comparison_threshold, not the rounded display bound 14371/1000; rigorous root/pi enclosure required for comparison.",
+      "public_comparison": "Strictly below checked general benchmark 16; not an exhaustive global literature claim.",
+      "round_start_bound": "16",
+      "g_exact": "17/(640*pi^3)",
+      "I_outward": "92072351/500000000000",
+      "history": [
+        {
+          "bound": "16",
+          "status": "prior general benchmark"
+        },
+        {
+          "bound": "14753/1000",
+          "strict": true,
+          "certificate": "audit/035_manifest.json"
+        },
+        {
+          "bound": "14371/1000",
+          "strict": true,
+          "certificate": "audit/037_manifest.json"
+        }
+      ],
+      "exact_comparison_threshold": "((6244212653911047061276408/1944624818861484527587890625)*pi^12)^(1/3)"
+    }
+  ]
+}

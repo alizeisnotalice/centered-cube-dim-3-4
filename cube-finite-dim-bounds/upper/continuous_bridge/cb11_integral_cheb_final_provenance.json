@@ -1,0 +1,41 @@
+{
+  "IH_upper_exact": "371554941304780934556431832604552093595846532501729317930550064659587063220778813717584524799415244674274011883277361599/661055968790248598951915308032771039828404682964281219284648795274405791236311345825189210439715284847591212025023358304256",
+  "raw_parts": {
+    "cb11_integral_cheb_part_00.json": {
+      "sha256": "6dc498027baf72508e6f418b3f493e278f9f63c621568535de7e6163d9b89c01"
+    },
+    "cb11_integral_cheb_part_01.json": {
+      "sha256": "7632210edf2709755ee613c6c7f97d0d28bcf1897b44d8c7f901ec177ed8abd9"
+    },
+    "cb11_integral_cheb_part_02.json": {
+      "sha256": "9b9106e7c9fdccae1b2d97ad5d382a3d55df1a075bd9b40b62b8f4040381425f"
+    },
+    "cb11_integral_cheb_part_03.json": {
+      "sha256": "489123d20d42c5a107b3381ce5f3a19e912313bc1a61e4ae341290082ac70b48"
+    },
+    "cb11_integral_cheb_part_04.json": {
+      "sha256": "4579e84758f4d7e5cc9ae5b9c10a7b01828f0c17d815b18f4bdce706e1bbfd0b"
+    },
+    "cb11_integral_cheb_part_05.json": {
+      "sha256": "301cbcf882c735a35e2bd9cb16e238726c9cd789437dc9f3bdd8baa7831f072a"
+    },
+    "cb11_integral_cheb_part_06.json": {
+      "sha256": "2aa94726331bdf413de7501846ee30a2ac535504ccaa1d4475aaa81f03cb4374"
+    },
+    "cb11_integral_cheb_part_07.json": {
+      "sha256": "54c6e5f28adee2af13c3b824ed1282c013b0215b3dbf194a49b41b99f4c2efa5"
+    },
+    "cb11_integral_cheb_part_08.json": {
+      "sha256": "d895c0112a0744a07c9c7fc06af8d12ab3817d5f20b5b8ea3b70d76df4acebd8"
+    },
+    "cb11_integral_cheb_part_09.json": {
+      "sha256": "506fb9a1577888792226a860ac17b648c5e0f3f7fa1d0801a5f6716c5a7c8b28"
+    },
+    "cb11_integral_cheb_part_10.json": {
+      "sha256": "3540cd58b445bc6254175e6ccbbd09b5c2b3377b48ed24c81bc52f858ac42599"
+    },
+    "cb11_integral_cheb_part_11.json": {
+      "sha256": "b6dc57ca838be1219234beb35b535ae7d8c91f73511168b090471c48655a2aaa"
+    }
+  }
+}

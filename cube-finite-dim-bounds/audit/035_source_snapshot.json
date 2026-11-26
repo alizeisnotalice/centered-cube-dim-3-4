@@ -1,0 +1,7 @@
+{
+  "results/round011_n4_actual_candidate_cost.json": "42e301bb6adccc517079d0ce15f6afc1d8ced8243d12618630aeafc10f823403",
+  "upper/continuous_integral_n4/ci4b_certificate.json": "4dbb544ba34762b239adea8e4dc152987ce33c15ef855f459efb63bffa1281b0",
+  "upper/u11_minimum_certificate_results.json": "23a8ce3a07c6c5ad94b29dd0b57aba4dd4e3f1fd4a9098374ec700b73b0feb3d",
+  "upper/u11_minimum_global_results.json": "43be4de041c9da823d192ff6d8ef2440c3668f88b13fc52dbff320dd0011d96f",
+  "upper/u11_minimum_star_results.json": "90c3a75635d1caf898ad2662656f35f9a2afc67aebba5f4652e5730c1ffc166f"
+}
