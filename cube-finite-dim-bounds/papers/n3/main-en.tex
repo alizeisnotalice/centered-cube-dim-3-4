@@ -1,0 +1,680 @@
+% !TEX program = xelatex
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm,geometry,booktabs,longtable,array}
+\usepackage{hyperref}
+\geometry{margin=26mm}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue,pdftitle={A rigorous weak-type upper bound for the three-dimensional centered cubic maximal operator}}
+\allowdisplaybreaks
+\setlength{\emergencystretch}{3em}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}\newtheorem{remark}[theorem]{Remark}
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\newcommand{\N}{\mathbb N}
+\newcommand{\one}{\mathbf 1}
+\newcommand{\dd}{\,\mathrm d}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\pos}[1]{(#1)_+}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\Rea}{Re}
+\DeclareMathOperator{\Dom}{Dom}
+\DeclareMathOperator{\mean}{mean}
+\newcommand{\src}[1]{\nolinkurl{#1}}
+\title{A rigorous weak-type upper bound for the three-dimensional centered cubic maximal operator\\\large Finite-direction Cauchy potentials, obstacle comparison, and continuous computational certificates}
+\author{}
+\date{October 25, 2026\\\small Anonymous review draft; second review of the shared theory and the three-dimensional certificate completed}
+\begin{document}
+\maketitle
+\begin{abstract}
+For the centered maximal operator over axis-parallel cubes in three dimensions, with Lebesgue measure fixed, we prove the strict upper bound $C_3<1979/250=7.916$ on the weak-type $(1,1)$ constant. The construction uses Cauchy processes along four body-diagonal and six face-diagonal directions, with face-diagonal weight fixed at $1/3$. The positive part of its Green potential has a finite probability source on the whole space. Pairing that source with an obstacle decomposition controls all common radii with the same receiving set, and monotone approximation extends the estimate to general $L^1$ inputs. The computational part represents the actual Green potential by real Hermite divided differences on 96 spectral cones. It certifies a lower bound on the cube over 136 closed blocks and an upper bound on the integral of the time-truncated kernel over 8256 closed blocks, then accounts for the directional-line singularities using a short-time $L^{3/2}$ estimate on the entire plane. We give explicit bounds for all continuous errors, node displacements, means, and convex-chord tests. The outward rational parameters are $g=2621323989/500000000000$ and $I_0=23129127/40000000000$; the final comparison requires only rational arithmetic. We do not determine the optimal constant or claim exhaustive optimality within this fixed kernel family or across the public literature.
+\end{abstract}
+\noindent\textbf{Keywords:} centered maximal operator; weak-type estimate; nonlocal obstacle problem; Cauchy process; Green potential; computer-assisted proof.
+
+\section{Problem, result, and scope of the method}
+For $x\in\R^3$ and $r>0$, set $Q(x,r)=x+[-r,r]^3$ and define
+\begin{equation}\label{eq:maximal}
+ M^\square_3 f(x)=\sup_{r>0}\frac1{(2r)^3}\int_{Q(x,r)}\abs{f(y)}\dd y,
+ \qquad
+ C_3=\sup_{\substack{0\ne f\in L^1(\R^3)\\\lambda>0}}
+ \frac{\lambda\abs{\{M^\square_3 f>\lambda\}}}{\norm f_1}.
+\end{equation}
+All volumes, input integrals, and convolutions use the same fixed Lebesgue measure. The radius $r$ is common to all three coordinates and ranges over all positive values.
+
+\begin{theorem}\label{thm:main}
+The constant in \eqref{eq:maximal} satisfies
+\begin{equation}\label{eq:bound}
+ C_3\le \sqrt{\frac{1547906585017734375000000000}
+ {24707828464688747938727861}}<\frac{1979}{250}=7.916.
+\end{equation}
+\end{theorem}
+
+Fixed-dimensional constants for centered cubes and their dependence on dimension are related but distinct problems. Aldaz established a fixed-dimensional lower bound and growth with dimension \cite{Aldaz2000,Aldaz2011}. A uniform bound for general locally finite Borel background measures gives the three-dimensional upper bound $2^3=8$ \cite{AldazKissing2020}. Sharpness for general measures does not make $8$ optimal for Lebesgue measure. We strictly improve this verified public general benchmark, without making a global optimality claim about the entire literature.
+
+We use the partial balayage and obstacle-comparison framework in Lin's public manuscript \cite{Lin}. We construct a genuine finite-direction generator adapted to three-dimensional cubes and prove the obstacle decomposition, the whole-space source of the positive-part potential, and the transfer to general $L^1$ inputs at all scales. Our specific contributions are the fixed mixture of body and face diagonals, its 96-cone representation, and the continuous certificates that reduce the cost. These numerical conclusions do not follow automatically from the published framework. We only need a finite probability source for the positive-part potential; we make no such claim for an arbitrary candidate kernel.
+
+The proof has three layers. First we bound $C_3$ by the mass of a positive kernel. Next we reduce that mass to a lower bound for the Green potential on a cube and an integral on one face. Finally we certify both quantities using closed-block interpolation and rigorous error bounds. The body of the paper gives explicit finite acceptance criteria rather than listing millions of nodes; the appendix identifies the source code, data, and SHA256 checksums. Runs of the archived programs are computational evidence, but their status messages do not replace the analytical argument.
+
+\section{The actual semigroup and obstacle decomposition}
+\subsection{A finite-direction Cauchy generator}
+Set
+\[
+ V_b=\{(1,\varepsilon_2,\varepsilon_3):\varepsilon_2,\varepsilon_3\in\{-1,1\}\},
+ \quad V_f=\{e_i+e_j,e_i-e_j:1\le i<j\le3\}.
+\]
+The directions are not normalized to unit length. Put $c_v=1$ for $v\in V_b$ and $c_v=1/3$ for $v\in V_f$. Define
+\begin{equation}\label{eq:symbol}
+ \psi(\xi)=\sum_{v\in V_b}\abs{v\cdot\xi}
+       +\frac13\sum_{v\in V_f}\abs{v\cdot\xi},\qquad L=-\psi(D).
+\end{equation}
+Our Fourier convention is $\widehat h(\xi)=\int e^{-ix\cdot\xi}h(x)\dd x$, with inverse factor $(2\pi)^{-3}$. If the $Z^v_t$ are independent one-dimensional Cauchy variables with scales $c_vt$, then $X_t=\sum_vvZ^v_t$ has characteristic function $e^{-t\psi}$. Thus $P_th=p_t*h$ is a positivity-preserving, mass-preserving, self-adjoint convolution semigroup.
+
+\begin{lemma}\label{lem:semigroup}
+The function $p_t$ is a strictly positive continuous probability density and satisfies $p_t(x)=t^{-3}p_1(x/t)$. Moreover, $\psi\asymp\abs\xi$, the $L^2$ operator domain of $L$ is $H^1(\R^3)$, and its quadratic-form domain is $H^{1/2}(\R^3)$. For $\phi\in C_c^\infty$,
+\begin{equation}\label{eq:generator}
+ L\phi(x)=\frac1{2\pi}\sum_vc_v\int_\R
+ \frac{\phi(x+sv)+\phi(x-sv)-2\phi(x)}{s^2}\dd s
+ \in L^1\cap C_0\cap L^\infty.
+\end{equation}
+One may take $\norm{p_t}_\infty\le C_*t^{-3}$, where $C_*=1/(4\pi^3)$.
+\end{lemma}
+\begin{proof}
+Choose three body diagonals as the columns of a matrix $B$ with $\abs{\det B}=4$. The density of the corresponding three terms is
+\[
+ p_t^B(x)=\frac1{\abs{\det B}}\prod_{j=1}^3
+ \frac{t}{\pi(t^2+(B^{-1}x)_j^2)}.
+\]
+The remaining terms have a probability law, so the actual density is the convolution of $p_t^B$ with that law. This proves strict positivity, continuity, the mass identity, and the peak bound. Scaling follows from the common time of the independent variables. The Gram identities $\sum_{V_b}vv^T=4I$ and $\sum_{V_f}vv^T=4I$ give
+\[
+ 2\abs\xi\le\psi(\xi)\le(4+2\sqrt6/3)\abs\xi.
+\]
+The domain assertions follow from Plancherel's theorem. Equation \eqref{eq:generator} comes from the one-dimensional Cauchy generator; its second difference is bounded by
+\[\min\{s^2\abs v^2\norm{D^2\phi},4\norm\phi\}.\]
+Integration in the $L^1$ and supremum norms yields the asserted space memberships. This estimate and first-order homogeneity also give
+\begin{equation}\label{eq:cutoff}
+ \norm{L\chi(\cdot/R)}_\infty=R^{-1}\norm{L\chi}_\infty,
+ \qquad \norm{L\chi(\cdot/\varepsilon)}_1
+       =\varepsilon^2\norm{L\chi}_1.
+\end{equation}
+\end{proof}
+
+\subsection{Obstacle decomposition with a common receiving set}
+\begin{proposition}\label{prop:obstacle}
+If $f\ge0$ is bounded and compactly supported and $\kappa>0$, there exist
+\[
+ u\ge0,\quad u\in L^1\cap L^\infty\cap H^1,
+ \qquad \sigma\in L^1\cap L^\infty,
+\]
+such that
+\begin{equation}\label{eq:obstacle}
+ f=\sigma-Lu,\quad 0\le\sigma\le\kappa,
+ \quad \sigma=\kappa\ \text{almost everywhere on }D=\{u>0\},
+ \quad \int\sigma=\int f.
+\end{equation}
+In particular, $\kappa\abs D\le\norm f_1$.
+\end{proposition}
+\begin{proof}
+For $f=0$ use the zero solution. Otherwise set $F=\norm f_\infty$ and $m=\norm f_1$ and, for $0<t\le1$, define
+\[
+ V_t=t\sum_{j=0}^\infty P_{jt}f,
+ \qquad u_{t,0}=0,\qquad
+ u_{t,k+1}=\pos{P_tu_{t,k}+t(f-\kappa)}.
+\]
+Since $\norm{P_sf}_\infty\le\min(F,C_*ms^{-3})$, the series is bounded and
+\begin{equation}\label{eq:Vbound}
+ \norm{V_t}_\infty\le tF+\frac32(C_*m)^{1/3}F^{2/3}=:A_t\le A.
+\end{equation}
+Positivity and $P_tV_t=V_t-tf$ show that the iterates increase and are bounded by $V_t$. Their limit $u_t$ satisfies the fixed-point equation, and $u_t\le(V_t-\kappa t)_+$. As $V_t-tf\in C_0$ and $f$ is compactly supported, $u_t$ is essentially compactly supported for fixed $t$ and hence lies in $L^1\cap L^2$.
+
+Write $L_t=(P_t-I)/t$ and $\sigma_t=f+L_tu_t$. The fixed-point equation gives $\sigma_t=\kappa$ where $u_t>0$, and $0\le f+P_tu_t/t\le\kappa$ where $u_t=0$. Mass preservation gives $\int\sigma_t=m$. Multiplying the fixed-point saturation relation by $u_t$ and integrating yields
+\begin{equation}\label{eq:energy}
+ \mathcal E_t(u_t,u_t)+\kappa\norm{u_t}_1=\int fu_t,
+ \qquad \mathcal E_t(h,h)=t^{-1}\langle h,(I-P_t)h\rangle\ge0.
+\end{equation}
+Consequently,
+\[
+ \norm{u_t}_1\le mA/\kappa,\quad
+ \norm{u_t}_2^2\le mA^2/\kappa,\quad
+ \norm{\sigma_t}_2^2\le\kappa m,\quad
+ \norm{L_tu_t}_2\le\norm f_2+\sqrt{\kappa m}.
+\]
+The uniform $L^1$ bound comes from the energy identity; it does not assert that $V_t\in L^1$.
+
+Let $\psi_t=(1-e^{-t\psi})/t$. For $Q>0$ and $t\le Q^{-1}$, we have $\psi_t\ge(1-e^{-1})Q$ where $\psi\ge Q$. The previous estimate gives a uniform $L^2$ high-frequency tail of order $O(Q^{-2})$ for $\widehat u_t$ in squared norm. The low-frequency truncations are bounded in $H^1$. Applying Rellich compactness on bounded regions, then increasing the frequency cutoffs, yields $t_j\downarrow0$ with $u_{t_j}$ converging locally strongly in $L^2$ and almost everywhere to $u$, while $u_{t_j}$ and $\sigma_{t_j}$ converge weakly in $L^2$ to $u$ and $\sigma$, respectively. Fatou's lemma gives $u\in L^1\cap L^\infty$.
+
+For Schwartz tests, $L_t\phi\to L\phi$ in $L^2$, so $Lu=\sigma-f$ distributionally and in $L^2$. The Fourier multiplier characterization gives $u\in H^1$. The weak limit retains $0\le\sigma\le\kappa$. At almost every point where $u>0$, $u_{t_j}$ is eventually positive, so $\sigma_{t_j}$ is eventually equal to $\kappa$. Dominated convergence on bounded regions, paired with the weak limit, yields $\sigma=\kappa$ on $D$.
+
+Testing the weak limit with smooth cutoffs $0\le\chi_R\uparrow1$ first gives $\int\sigma\le m$. Next test $f=\sigma-Lu$ with $\chi_R$. By \eqref{eq:cutoff} and $u\in L^1$, $\langle u,L\chi_R\rangle\to0$. Hence $\int\sigma=m$, with no loss of mass at infinity. Finally, $\kappa\abs D=\int_D\sigma\le m$.
+\end{proof}
+
+\section{The positive part of the Green potential, its finite source, and all-scale comparison}
+\subsection{Integrability and the distributional source on the whole space}
+Define the extended nonnegative functions
+\begin{equation}\label{eq:Green}
+ G(x)=\int_0^\infty p_t(x)\dd t,
+ \qquad W_c(x)=\pos{G(x)-c}\quad(c>0).
+\end{equation}
+The function $G$ may take infinite values on the directional lines. The following argument does not remove those lines, the nonsmooth positive-part interface, or the tails at infinity.
+
+\begin{proposition}\label{prop:source}
+The function $G$ is locally integrable, finite almost everywhere, and belongs to weak $L^{3/2}$; $W_c$ is a nonnegative even $L^1$ function. On all of $\R^3$,
+\begin{equation}\label{eq:source}
+ LW_c=\mu_c-\delta_0,
+ \qquad \mu_c\ge0,\quad\mu_c(\R^3)=1,\quad\mu_c(\{0\})=0,
+\end{equation}
+where $\mu_c$ is a finite Radon measure.
+\end{proposition}
+\begin{proof}
+Write $U_T=\int_0^Tp_t\dd t$ and $A_T=\int_T^\infty p_t\dd t$. Then $\norm{U_T}_1=T$ and $0\le A_T\le C_*/(2T^2)$. Taking $T=(C_*/\lambda)^{1/2}$, Chebyshev's inequality yields
+\[
+ \abs{\{G>\lambda\}}\le 2\sqrt{C_*}\lambda^{-3/2}.
+\]
+Moreover, for every finite-volume set $E$,
+$\int_EG\le\int_0^\infty\min(1,C_*\abs E t^{-3})\dd t<\infty$.
+By layer-cake integration, $\int W_c=\int_c^\infty\abs{\{G>s\}}\dd s<\infty$.
+
+For $\phi\in C_c^\infty$, Lemma \ref{lem:semigroup} gives
+\[
+ \int G\abs{L\phi}
+ \le\int_0^\infty\min(\norm{L\phi}_\infty,
+ C_*\norm{L\phi}_1t^{-3})\dd t<\infty.
+\]
+The semigroup derivative is therefore integrable, and $P_T\phi(0)\to0$, so
+$\langle G,L\phi\rangle=\int_0^\infty P_tL\phi(0)\dd t=-\phi(0)$.
+that is, $LG=-\delta_0$.
+
+Tonelli's theorem for nonnegative functions and the semigroup law give $G=P_tG+U_t$. At almost every point where these are finite, preservation of constants and convexity of the positive part yield
+\[
+ P_tW_c\ge(P_tG-c)_+\ge W_c-U_t.
+\]
+Multiply by a nonnegative test function $\phi$, use self-adjointness, and divide by $t$. The left side converges to $\langle W_c,L\phi\rangle$ because $(P_t\phi-\phi)/t\to L\phi$ in $L^\infty$; on the right, $-\langle U_t/t,\phi\rangle\to-\phi(0)$. This generator limit also follows directly from $\psi\widehat\phi\in L^1$ and dominated convergence in Fourier space. Thus $LW_c+\delta_0$ is a positive distribution, hence a positive Radon measure $\mu_c$.
+
+For the large cutoffs in \eqref{eq:cutoff},
+$\int\chi_R\dd\mu_c=1+\langle W_c,L\chi_R\rangle\to1$.
+Positivity and monotone convergence give total mass $1$. Now set $h=\min(G,c)$. Then $0\le h\le c$ and $\mu_c=-Lh$. Take a nonnegative smooth $\chi$ equal to $1$ near the origin. By the $L^1$ scaling of the small cutoffs,
+\[
+ 0\le\int\chi(x/\varepsilon)\dd\mu_c(x)
+ \le c\varepsilon^2\norm{L\chi}_1\longrightarrow0.
+\]
+Thus the origin carries no positive atom. All pairings in this proof are on the whole space.
+\end{proof}
+
+\subsection{Comparison using the particular finite source}
+\begin{lemma}\label{lem:finite-source}
+If $W=W_c$ and $u\in H^1$, then
+\begin{equation}\label{eq:conv-source}
+ W*Lu=\mu_c*u-u\quad\text{in }L^2.
+\end{equation}
+If $u\ge0$ and $D=\{u>0\}$, the right-hand side is nonnegative almost everywhere on $D^c$.
+\end{lemma}
+\begin{proof}
+Since $W\in L^1$, $Lu\in L^2$, and $\mu_c$ is finite, both sides lie in $L^2$. For a Schwartz test $\phi$, Fubini's theorem permits interchanging Fourier inversion with pairing against $W$, since $\psi\widehat\phi\in L^1$ and $W\in L^1$. Consequently, Fourier transformation of \eqref{eq:source} indeed gives
+$-\psi\widehat W=\widehat\mu_c-1$, first as distributions, with both sides continuous. Multiplying by $\widehat u$ and using Plancherel gives \eqref{eq:conv-source}. Convolution by a positive measure preserves nonnegativity and $u=0$ on $D^c$. This argument uses only the finite source; it involves no subtraction of two infinite quantities from the jump measure.
+\end{proof}
+
+\begin{proposition}\label{prop:comparison}
+If $G\ge g>0$ almost everywhere on $[-1,1]^3$, choose $0<c<g$ and set
+\begin{equation}\label{eq:kernel}
+ K=\frac{W_c}{8(g-c)},\quad a=\frac1{8(g-c)},
+ \qquad K_r(x)=r^{-3}K(x/r),\qquad M=\int K.
+\end{equation}
+Then for general $f\in L^1$ and $\lambda>0$,
+\begin{equation}\label{eq:weakK}
+ \lambda\abs{\{\sup_{r>0}K_r*\abs f>\lambda\}}\le M\norm f_1.
+\end{equation}
+In particular, $C_3\le M$.
+\end{proposition}
+\begin{proof}
+First take $f\ge0$ bounded and compactly supported, and apply Proposition \ref{prop:obstacle} with $\kappa=\lambda/M$. First-order homogeneity gives the following identities, with $\mu_{c,r}$ denoting the pushforward of $\mu_c$ under $x\mapsto rx$:
+\[
+ LK_r=\frac a r(\mu_{c,r}-\delta_0),\qquad
+ K_r*Lu=\frac a r(\mu_{c,r}*u-u).
+\]
+The second identity holds in $L^2$ by the same argument as Lemma \ref{lem:finite-source}. Thus for every fixed $r$, almost everywhere on the same set $D^c$,
+\[
+ K_r*f=K_r*\sigma-K_r*Lu\le K_r*\sigma\le\kappa M=\lambda.
+\]
+First take the union of the null sets for positive rational $r$. The kernel scaling is continuous in $L^1$, and
+$\norm{K_r*f-K_s*f}_\infty\le\norm f_\infty\norm{K_r-K_s}_1$,
+so the same conclusion extends to all $r>0$. The exceptional set is contained in $D$ modulo a null set. Using $\kappa\abs D\le\norm f_1$ gives \eqref{eq:weakK}.
+
+For general $f$, set $f_j=\min(\abs f,j)\one_{[-j,j]^3}\uparrow\abs f$.
+The nonnegative convolutions and the supremum over all $r$ commute with this monotone limit, so the exceptional sets and their measures converge monotonically. For each $f_j$ the supremum equals that over the rational scales, hence is measurable; the limit is likewise measurable. Finally $K\ge\one_{[-1,1]^3}/8$, so the cubic average at each scale is dominated by $K_r*\abs f$, giving the asserted result for $C_3$.
+\end{proof}
+
+\begin{remark}
+The common receiving set $D$ means that a single obstacle decomposition uses the same set for all common radii, not that all approximating inputs must share one obstacle solution. The fixed Lebesgue background is used in mass preservation, convolution self-adjointness, the Fourier identity, Fubini's theorem for measure convolution, and $K_r*\sigma\le\kappa\int K$. We do not transfer the corollary to arbitrary positive-density backgrounds or to independent scales in the coordinates.
+\end{remark}
+
+\section{Reducing the mass cost to two quantities on one face}
+The symbol \eqref{eq:symbol} is invariant under coordinate reflections and permutations, so $G$ has cubic symmetry. Semigroup scaling gives $G(rx)=r^{-2}G(x)$, including infinite values. Define
+\begin{equation}\label{eq:I}
+ I=\int_{[0,1]^2}G(1,y,z)^{3/2}\dd y\dd z,
+ \qquad J=\sum_{\text{six faces }F}\int_FG(y)^{3/2}\dd S(y).
+\end{equation}
+\begin{lemma}\label{lem:mass}
+We have $I<\infty$ and $J=24I$; for $c>0$,
+\begin{equation}\label{eq:mass}
+ \int W_c=\frac23c^{-1/2}J.
+\end{equation}
+Thus if $G\ge g$ on the cube and $I\le I_0$, taking $c=g/3$ yields
+\begin{equation}\label{eq:cost}
+ C_3\le\int K\le\frac{3^{3/2}I_0}{g^{3/2}}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Put $V=\abs{\{G>1\}}<\infty$. Finiteness is already proved by weak $L^{3/2}$ and does not follow merely from homogeneity. Homogeneity yields $\abs{\{G>s\}}=s^{-3/2}V$, hence $\int W_c=2Vc^{-1/2}$. Parametrize by rays from the cube faces, $x=ry$, with volume element $r^2\dd r\dd S(y)$. Tonelli's theorem gives
+\[
+ V=\sum_F\int_F\int_0^{G(y)^{1/2}}r^2\dd r\dd S(y)=J/3.
+\]
+Thus $J$ is finite and \eqref{eq:mass} follows. Symmetry across the six faces and four quadrants on each face gives $J=24I$. Divide \eqref{eq:mass} by $8(g-c)$. The function $c^{-1/2}/(g-c)$ has its unique minimum on $0<c<g$ at $c=g/3$, giving \eqref{eq:cost}.
+\end{proof}
+
+\section{The exact Green representation on 96 cones}
+\subsection{Closed spectral covering and normalization constants}
+Retain the face-diagonal weight $\tau\ge0$ for the representation, finally setting $\tau=1/3$. Order the absolute frequency coordinates as $a\ge b\ge c\ge0$. The sums of the body-diagonal and face-diagonal symbols, respectively, are
+\[
+ \max\{4a,2(a+b+c)\},\qquad4a+2b.
+\]
+Set $A=(1,0,0)$, $B=(1,1,0)$, $C=(2,1,1)$, and $D=(1,1,1)$. The ordered region splits into the cones $ABC$ and $BCD$, with nonnegative coordinates respectively given by
+\[
+ (a-b-c,b-c,c),\qquad(b-c,a-b,b+c-a).
+\]
+These correspond to $a\ge b+c$ and $a\le b+c$, respectively, and both Jacobian determinants have absolute value $1$. The 48 signed-permutation regions give 96 cones. Their interiors are disjoint, and their boundaries lie in finitely many planes. On each cone the projections of each original direction onto the three generating rays have the same weak sign, so the absolute-value symbol is linear there. The rates for the four ray types are
+\begin{equation}\label{eq:rates}
+ k_A=4+4\tau,\quad k_B=4+6\tau,\quad
+ k_C=8+10\tau,\quad k_D=6+6\tau.
+\end{equation}
+For a cone $q$, write its rays as $r_{qj}$ and rates as $k_{qj}$. Integrating each exponential, whose decay rate has positive real part, gives
+\begin{equation}\label{eq:heatcones}
+ p_t(x)=\frac1{8\pi^3}\sum_{q=1}^{96}
+ \prod_{j=1}^3(tk_{qj}-ix\cdot r_{qj})^{-1}.
+\end{equation}
+The opposite cone contributes the complex conjugate. Thus one may also sum twice the real part over 48 pairs. One must not replace the original sum by the sum of absolute values.
+
+The spectral unit volume is
+\[
+ \abs{\{\psi_\tau\le1\}}=
+ \frac5{6(1+\tau)(2+3\tau)(4+5\tau)}.
+\]
+Consequently, when $\tau=1/3$,
+\begin{equation}\label{eq:peak}
+ 0<p_t(x)\le p_t(0)=\frac{15}{544\pi^3t^3},
+ \qquad \int_T^\infty p_t(x)\dd t\le\frac{15}{1088\pi^3T^2}.
+\end{equation}
+The upper bound follows from the Fourier triangle inequality, and positivity from the actual probability process, not from the signs of individual cone terms.
+
+\subsection{Time-truncated real Hermite divided differences and all degeneracies}
+Write
+\[
+ H_\varepsilon(x)=\int_\varepsilon^\infty p_t(x)\dd t,
+ \quad f_\varepsilon(b)=\tfrac12\log(\varepsilon^2+b^2),
+ \quad b_{qj}=\frac{x\cdot r_{qj}}{k_{qj}},\quad
+ w_q=\prod_jk_{qj}^{-1}.
+\]
+The kernel $H_\varepsilon$ differs from the positive-part potential $W_c$. For real nodes, $f[b_1,b_2,b_3]$ denotes the second divided difference, defined by Hermite derivatives when nodes repeat.
+\begin{proposition}\label{prop:dd}
+For every $\varepsilon>0$ and $x\in\R^3$,
+\begin{equation}\label{eq:DD}
+ H_\varepsilon(x)=\frac1{8\pi^3}\sum_{q=1}^{96}
+ w_q f_\varepsilon[b_{q1},b_{q2},b_{q3}].
+\end{equation}
+This formula includes zero nodes and all repetitions, with no choice of complex logarithm branch.
+\end{proposition}
+\begin{proof}
+For distinct nodes, partial fractions give
+\[
+ \frac\dd{\dd\varepsilon}f_\varepsilon[b_1,b_2,b_3]
+ =-\Rea\prod_j(\varepsilon-ib_j)^{-1}.
+\]
+Integrate both sides from $\varepsilon$ to infinity. Both the divided difference and the tail integral tend to zero at infinity, giving the integral for a single cone. With fixed $\varepsilon>0$, the integrand is uniformly controlled by $t^{-3}$, and the divided difference extends continuously as a Hermite divided difference. The identity thus also holds for repeated and zero nodes. Summing finitely many cones gives \eqref{eq:DD}.
+In computation we use
+\[
+ f_\varepsilon'(a)=\frac a{\varepsilon^2+a^2},\quad
+ \tfrac12f_\varepsilon''(a)=\frac{\varepsilon^2-a^2}{2(\varepsilon^2+a^2)^2},
+\]
+and $f[a,a,b]=(f(b)-f(a)-f'(a)(b-a))/(b-a)^2$.
+\end{proof}
+For nonzero $x$, linear independence of the three rays prevents all three nodes of a cone from vanishing. As $\varepsilon\downarrow0$, all six types have the expansion $\gamma\log\varepsilon+F+O(\varepsilon^2)$, as listed below. All $a,b,c$ are real; the table retains the nonzero conditions explicitly.
+\begin{center}\small
+\begin{tabular}{lll}\toprule
+Node type&$\gamma$&$F$\\\midrule
+Distinct nonzero $a,b,c$&$0$&$\displaystyle\sum_j\frac{\log\abs{b_j}}{\prod_{k\ne j}(b_j-b_k)}$\\[2mm]
+$a,a,b\ne0$, $a\ne b$&$0$&$\displaystyle\frac{\log\abs b-\log\abs a-(b-a)/a}{(b-a)^2}$\\[2mm]
+$a,a,a\ne0$&$0$&$-1/(2a^2)$\\[1mm]
+$0,b,c$, $bc\ne0$, $b\ne c$&$1/(bc)$&$\displaystyle\frac{\log\abs b}{b(b-c)}+\frac{\log\abs c}{c(c-b)}$\\[2mm]
+$0,b,b$, $b\ne0$&$1/b^2$&$(1-\log\abs b)/b^2$\\[1mm]
+$0,0,b$, $b\ne0$&$-1/b^2$&$\log\abs b/b^2$\\\bottomrule
+\end{tabular}
+\end{center}
+These formulas follow directly from the Hermite definitions above and $f_\varepsilon(0)=\log\varepsilon$, $f_\varepsilon'(0)=0$. Absolute values belong only in the logarithm arguments; they must not replace signed denominators or derivatives.
+
+Combine all 96 cones with their weights, and write $\Gamma=\sum_qw_q\gamma_q$. The actual kernel satisfies $H_\varepsilon\ge0$ and increases as $\varepsilon\downarrow0$, so $\Gamma>0$ is impossible. If $\Gamma<0$, then $G=+\infty$; if $\Gamma=0$, then $G=(8\pi^3)^{-1}\sum_qw_qF_q$. At the origin \eqref{eq:peak} directly gives $G(0)=+\infty$. For instance, positive and negative logarithmic terms cancel at $(1,0,0)$, so the cones cannot be inspected individually for finiteness. Both $(1,1,0)$ and $(1,1,1)$ give genuine infinite values at the present $\tau$. The computations below always take $\varepsilon>0$, so singularities are not handled by dividing small differences near repeated roots or extrapolating from finitely many samples.
+
+\section{A uniform error theorem for continuous certification on closed blocks}
+This section sets out the analytic and algebraic tests common to the two finite certificates. Write $F_\varepsilon(y,z)=H_\varepsilon(1,y,z)$. The inequality
+$k_r\ge3(\abs{r_y}+\abs{r_z})$ on every ray and the nonnegative cone representation give
+\begin{equation}\label{eq:strip-symbol}
+ \psi(\xi)\ge3(\abs{\xi_y}+\abs{\xi_z}).
+\end{equation}
+Thus, in the complex tube $\max(\abs{\Im y},\abs{\Im z})\le s<3\varepsilon$, absolute Fourier domination and \eqref{eq:peak} give
+\begin{equation}\label{eq:tube}
+ \abs{F_\varepsilon(y,z)}\le
+ \frac{15}{1088\pi^3(\varepsilon-s/3)^2}=:M(\varepsilon,s).
+\end{equation}
+The same domination on compact subsets of the open tube proves joint holomorphy. Both imaginary parts are controlled by the single maximum $s$, so there is no additional factor of $2$. The real parts are arbitrary: the real parts of the Cauchy disks need not stay in the original block.
+
+\begin{theorem}[Closed-square interpolation criterion]\label{thm:certificate}
+Let $B=[y_0-h,y_0+h]\times[z_0-h,z_0+h]$ be a closed block, let $d$ be the interpolation degree, and let $N=d+1$. Suppose $\rho>1$ satisfies
+\[
+ s=\frac h2(\rho-\rho^{-1})<3\varepsilon,
+ \quad M=M(\varepsilon,s),\quad
+ E_d=8(d+1)M\frac{\rho^{-d}}{\rho-1}.
+\]
+Tensor interpolation at the actual Chebyshev roots $t_j=\cos((2j+1)\pi/(2N))$ produces a polynomial $P$ satisfying $\norm{F_\varepsilon-P}_{L^\infty(B)}\le E_d$.
+Suppose rigorous node balls, propagated through the DCT and exact Bernstein conversion, enclose the coefficients $\beta_{ab}$ of $P$ and its normalized mean $\bar P$. Then
+\begin{align}\label{eq:range}
+ L&=\max\{0,\min_{a,b}\underline\beta_{ab}-E_d\},\\
+ U&=\max_{a,b}\overline\beta_{ab}+E_d,
+ \qquad m=\min\{U,\overline{\bar P}+E_d\}
+\end{align}
+give $0\le L\le F_\varepsilon\le U$ and $\mean_BF_\varepsilon\le m$, respectively. If $L\le m\le U$ and $U>0$, then
+\begin{equation}\label{eq:chord}
+ \mean_B(F_\varepsilon^{3/2})
+ \le L^{3/2}+
+ \frac{U+\sqrt{UL}+L}{\sqrt U+\sqrt L}(m-L).
+\end{equation}
+All interval operations use outward-rounded endpoints.
+\end{theorem}
+\begin{proof}
+The complex ellipse has height $s$, and \eqref{eq:tube} gives the one-coordinate Chebyshev coefficient bound $2M\rho^{-k}$. Sampling any $T_k$ at the $N$ roots aliases, by cosine periodicity and reflection, to some $\pm T_l$ with $l\le d$, or to zero, so its interpolant has supremum norm at most $1$. The difference between each high-frequency term and its interpolant is at most $2$; the absolutely convergent series therefore gives the one-coordinate error
+$E_1\le4M\rho^{-d}/(\rho-1)$.
+The cardinal formula for root interpolation
+\[
+ \ell_j(t)=\frac1N\left(1+2\sum_{k=1}^d\cos(k\theta_j)T_k(t)\right),
+ \qquad\theta_j=(2j+1)\pi/(2N)
+\]
+gives the interpolation operator norm $\Lambda\le2d+1$. The identity
+$I-I_yI_z=(I-I_y)+I_y(I-I_z)$ then yields the error $(1+\Lambda)E_1=E_d$.
+
+Use the DCT matrix
+$A_{kj}=(2-\delta_{k0})\cos(k\theta_j)/N$.
+Finite cosine orthogonality gives $AVA^T$ as the tensor Chebyshev coefficient matrix, where $V$ is the matrix of node values. If
+$T_k(2u-1)=\sum_{l=0}^kp_{kl}u^l$, the binomial identity
+\[
+ u^l=\sum_{a=l}^d\frac{\binom al}{\binom dl}
+ \binom da u^a(1-u)^{d-a}
+\]
+gives the exact conversion matrix
+\begin{equation}\label{eq:Bernstein}
+ B_{ak}=\sum_{l\le\min(a,k)}p_{kl}\frac{\binom al}{\binom dl},
+ \qquad(\beta_{ab})=BAVA^TB^T.
+\end{equation}
+The Bernstein basis is nonnegative and sums to $1$, so the coefficient endpoints bound the range over the whole closed block; adding $E_d$ yields \eqref{eq:range}. The mean is evaluated using
+\begin{equation}\label{eq:mean}
+ \mu_0=1,\quad \mu_k=0\ (k\text{ odd}),\quad
+ \mu_k=-\frac1{k^2-1}\ (k\ge2\text{ even}),\qquad
+ \bar P=\mu AVA^T\mu^T
+\end{equation}
+It also equals the sum of the Bernstein coefficients divided by $N^2$. This is the mean; area has not yet been included.
+
+The convex function $x^{3/2}$ lies below the endpoint chord on $[L,U]$. Set $a=\sqrt U$ and $b=\sqrt L$. Its slope is $(a^3-b^3)/(a^2-b^2)=(a^2+ab+b^2)/(a+b)$, which is nonnegative, so the true mean can be replaced by its upper bound $m$. This gives \eqref{eq:chord}, including $L=0$. For $U=L>0$, we have $m=L$, and the right side remains valid without dividing by $U-L$.
+\end{proof}
+
+\subsection{Rational node replacement and rounding propagation}
+The true roots are generally irrational. For each positive root, use rigorous ball arithmetic to certify the unique integer floor of $2^{128}t_j$ and take the corresponding exact dyadic rational $q_j$. Construct negative roots by antisymmetry and use $0$ for the central root. Thus $\abs{q_j-t_j}<2^{-128}$. With one-coordinate Cauchy radius $R<3\varepsilon$, \eqref{eq:tube} yields the real partial derivative bound
+\begin{equation}\label{eq:derivative}
+ D=\frac{15}{1088\pi^3(\varepsilon-R/3)^2R}.
+\end{equation}
+Following a piecewise linear path along the real coordinate axes, the difference in values at the exact rational node and at the true root node is at most
+\begin{equation}\label{eq:displacement}
+ \eta=2Dh\,2^{-128}.
+\end{equation}
+Thus add $\eta$ to the radius of every ball for a rational-node value before performing any DCT, Bernstein or mean operations. Enclose the matrix cosines by outward ball arithmetic as well. This accounts for node displacement and arithmetic error before propagation through the matrices, rather than subtracting $\eta$ only once after a potentially amplifying transformation. Exact repeated nodes are detected by equality of rationals, not guessed from overlapping balls.
+
+\section{A lower bound on the cube using 136 closed blocks}
+Use the fixed parameters
+\begin{equation}\label{eq:gparams}
+ \varepsilon=1/50,\quad d=20,\quad \rho=3,\quad h=1/32,
+ \quad R=1/50,\quad\text{precision }384\text{ bits}.
+\end{equation}
+The closed blocks are
+\[
+ B_{ij}=[i/16,(i+1)/16]\times[j/16,(j+1)/16],
+ \qquad0\le j\le i<16.
+\]
+There are 136 blocks, each with $21^2=441$ nodes. If $0\le z\le y\le1$, take
+$i=\min(15,\lfloor16y\rfloor)$ and $j=\min(15,\lfloor16z\rfloor)$ to obtain a containing block. The diagonal blocks use whole squares, allowing extra coverage without omitting the boundary.
+
+Here $s=1/24$ and $\varepsilon-s/3=11/1800$, so
+\begin{align*}
+ M&=\frac{15}{1088\pi^3(11/1800)^2}<11.906178395825,\\
+ D&=\frac{15}{1088\pi^3(1/75)^2(1/50)}<125.056215,\\
+ E_{20}&=84M/3^{20}<2.868313237155\cdot10^{-7},\quad
+ \eta<2.296921\cdot10^{-38}.
+\end{align*}
+These displayed upper bounds indicate only the scale of the errors. The acceptance criteria use the complete balls and exact rational endpoints.
+
+\begin{theorem}[Lower-bound certificate]\label{thm:g}
+Compute the Bernstein coefficient balls for each block according to \eqref{eq:DD}, \eqref{eq:Bernstein}, and \eqref{eq:gparams}, and let
+\[
+ \ell_{ij}=\operatorname{down}\!\left(
+  \min_{a,b}\underline\beta^{ij}_{ab}-E_{20}\right).
+\]
+All 136 finite tests $\ell_{ij}>g_0$ hold, where
+\begin{equation}\label{eq:g0}
+ g_0=\frac{2621323989}{500000000000}.
+\end{equation}
+Consequently $G(x)\ge g_0$ pointwise on the entire closed cube $[-1,1]^3$.
+\end{theorem}
+\begin{proof}
+The appendix provides the exact results of the finite tests. An independent fresh implementation recomputes all $136\cdot441=59976$ nodes. The full numerator and denominator of its smallest certified lower endpoint $\ell_*$ are stored in the
+\src{minimum_H_lower_exact} field of \src{audit/033_results.json}.
+Exact finite comparison gives
+\[
+ \ell_*>\frac{5242647978717}{10^{15}}>g_0.
+\]
+Theorem \ref{thm:certificate} thus implies $H_{1/50}\ge g_0$ on the entire fundamental triangle of the face. Since $p_t\ge0$, we have $G\ge H_{1/50}$, so the lower bound needs no short-time error allowance.
+
+For a nonzero point $x$ in the cube let $m=\max_i\abs{x_i}\le1$. Cubic symmetry carries $x/m$ to $(1,y,z)$ with $0\le z\le y\le1$. Homogeneity of $G$ gives
+$G(x)=m^{-2}G(1,y,z)\ge g_0$; we do not apply homogeneity to the time-truncated kernel. The origin, where $G=\infty$, also satisfies the claim.
+\end{proof}
+
+\begin{remark}
+The value of $\ell_*$ is approximately $0.0052426479787179679751$ and comes from block $(15,7)$. It is a certified lower endpoint for the whole block, not a claim about the true minimum, its location, or its uniqueness. The number $g_0$ is a rational lower bound obtained by rounding this endpoint outwards.
+\end{remark}
+
+\section{An upper bound for the face integral using 8256 closed blocks}
+\subsection{Deterministic finite tests for the time-truncated integral}
+Use a different set of fixed parameters:
+\begin{equation}\label{eq:Iparams}
+ \varepsilon=9/5000,\quad d=32,\quad\rho=5/2,\quad
+ h=1/256,\quad R=\varepsilon,\quad\text{precision }384\text{ bits}.
+\end{equation}
+For $0\le j\le i<128$, take the closed squares
+$B_{ij}=[i/128,(i+1)/128]\times[j/128,(j+1)/128]$.
+There are 8256 blocks, each with $33^2=1089$ nodes. Set $w_{ij}=2$ if $j<i$ and $w_{ii}=1$. By symmetry under interchanging $y,z$, the integral on the full positive face is the weighted sum of the integrals over these whole squares. Each diagonal square already includes both sides of the diagonal and must not be halved. Explicitly,
+\begin{equation}\label{eq:area}
+ \sum_{0\le j\le i<128}\frac{w_{ij}}{128^2}
+ =\frac{16384}{16384}=1.
+\end{equation}
+Here $s=21/5120$ and $\varepsilon-s/3=277/640000$, so
+\begin{equation}\label{eq:Ierrors}
+ M=\frac{15}{1088\pi^3(277/640000)^2},\quad
+ E_{32}=176M(2/5)^{32}<7.706294\cdot10^{-8},\quad
+ \eta<3.938478\cdot10^{-36}.
+\end{equation}
+Use Theorem \ref{thm:certificate} to obtain exact endpoints $L_{ij},U_{ij},m_{ij}$ for every block. Each recorded upper bound $b_{ij}$ on the contribution must satisfy all of the following finite tests:
+\begin{equation}\label{eq:finite-I}
+ \begin{gathered}
+ 0\le L_{ij}\le m_{ij}\le U_{ij},\quad U_{ij}>0,\\
+ b_{ij}\ge\frac{w_{ij}}{128^2}\left[
+ L_{ij}^{3/2}+\frac{U_{ij}+\sqrt{U_{ij}L_{ij}}+L_{ij}}
+ {\sqrt{U_{ij}}+\sqrt{L_{ij}}}(m_{ij}-L_{ij})\right].
+ \end{gathered}
+\end{equation}
+The recorded endpoints $L,U,m,b$ are exact dyadic rationals. The node, continuous, matrix-arithmetic, and mean errors have already been accounted for in computing them.
+
+\begin{proposition}\label{prop:IH}
+For all 8256 blocks in \eqref{eq:Iparams}, every condition in \eqref{eq:finite-I} holds, and the exact rational number
+$B=\sum_{ij}b_{ij}$ satisfies
+\begin{equation}\label{eq:IH}
+ \int_{[0,1]^2}H_\varepsilon^{3/2}\le B,
+ \qquad B=0.0005620627584450029912931962438471980490\ldots.
+\end{equation}
+The decimal is for display only; the numerator and denominator in the supplementary file define the exact $B$.
+\end{proposition}
+\begin{proof}
+Theorem \ref{thm:certificate} provides each block's continuous range, mean, and convex-chord upper bound on the integral. Equation \eqref{eq:area} gives complete integral coverage. The compact certificate of 8256 entries listed in the appendix records the exact sum and all local finite checks, which can be replayed without regenerating the nodes. An independent 512-bit check reevaluates the positive roots and convex chords for all 8256 entries, yielding upper endpoints no larger than the stored $b_{ij}$. The index set, total area, and rational sum also pass exact comparisons. This proves \eqref{eq:IH}.
+
+This replay does not itself reprove the node values. The frozen full 384-bit batch and its continuous algorithm supply those values, and Theorem \ref{thm:certificate} and \eqref{eq:DD} justify the algorithm. The appendix separately gives the full run command for reconstruction from scratch. These two layers of evidence are distinct.
+\end{proof}
+
+\subsection{The short-time error on the entire plane}
+Set $T_\varepsilon(1,y)=\int_0^\varepsilon p_t(1,y)\dd t$. This is a nonnegative time integral. Tonelli's theorem gives $G=H_\varepsilon+T_\varepsilon$, without any subtraction of infinite values.
+
+\begin{lemma}\label{lem:shorttime}
+For every $\varepsilon>0$,
+\begin{equation}\label{eq:time}
+ \norm{T_\varepsilon(1,\cdot)}_{L^{3/2}([0,1]^2)}
+ \le E_\varepsilon
+ =2^{-4/3}\frac34
+ \left(\frac{256}{3\pi^3}\right)^{1/3}
+ \left(\frac{16}{3\pi}\right)^{2/3}\varepsilon^{4/3}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Of the ten directions, eight have a nonzero first coordinate. Four are body diagonals of weight $1$, and four are face diagonals of weight $1/3$, so $k=8$ and the total weight is $A=16/3$. If the first coordinate is at least $1-\delta$, then at least one of these parameters satisfies $\abs{Z_t^i}\ge(1-\delta)/k$. Complete each such direction to a basis with two other weight-$1$ body diagonals, obtaining determinant of absolute value $4$. Specifically, both representative directions $(1,1,1)$ and $(1,1,0)$ can be completed by $(1,-1,-1)$ and $(1,-1,1)$, in each case with determinant $-4$. Reflections and permutations of the free coordinates that preserve the first coordinate cover all eight directions. The restricted Cauchy parameter density is at most $c_ik^2t/[\pi(1-\delta)^2]$, and each of the other two densities is at most $1/(\pi t)$. Convolution by the probability law of the remaining variables cannot increase the supremum. Summing over the eight events and dividing by the change-of-basis Jacobian gives a density bound in the neighborhood. Continuity of $p_t$ and $\delta\downarrow0$ then give
+\begin{equation}\label{eq:face-sup}
+ p_t(1,y)\le C_ft^{-1},\qquad
+ C_f=\frac{k^2}{\pi^3}\sum_i\frac{c_i}{4}
+     =\frac{256}{3\pi^3}.
+\end{equation}
+This event decomposition is used at the spatial-density level. It does not treat a zero-probability planar slice as a positive-probability event.
+
+The first coordinate is a Cauchy sum of scale $At$. Using the positive density in basis coordinates and solving for a nonzero normal parameter in terms of the first coordinate, Tonelli's theorem and the linear Jacobian cancellation give the exact marginal identity on the fixed slice:
+\begin{equation}\label{eq:marginal}
+ \int_{\R^2}p_t(1,y)\dd y=\frac{At}{\pi(1+A^2t^2)}.
+\end{equation}
+One could also use continuity of the density and Fatou's lemma to obtain only the upper bound, which suffices below.
+Combining \eqref{eq:face-sup} and \eqref{eq:marginal} for the same actual density, the inequality $p^{3/2}\le\norm p_\infty^{1/2}p$ gives
+\[
+ \norm{p_t(1,\cdot)}_{L^{3/2}(\R^2)}
+ \le C_f^{1/3}(A/\pi)^{2/3}t^{1/3}.
+\]
+Apply Minkowski first on finite time and space regions, and then use monotone limits. The norm of the whole-plane short-time kernel is bounded by
+$(3/4)C_f^{1/3}(A/\pi)^{2/3}\varepsilon^{4/3}$.
+The actual process is invariant under reflection in either free coordinate. The integral of the $3/2$ power in the positive quadrant is thus equal to $1/4$ of the whole-plane integral, and the norm factor is $4^{-2/3}=2^{-4/3}$. The unit positive face is a subset of this quadrant, yielding \eqref{eq:time}.
+\end{proof}
+
+The bound covers neighborhoods of all directional lines, the entire plane, and the spatial tails at infinity; there is no removal of singular caps. In particular, $G$ can be infinite on these lines while its face $L^{3/2}$ integral is finite by this bound and the continuous integral of $H_\varepsilon$.
+
+\begin{theorem}[Integral certificate]\label{thm:I}
+With the parameters in \eqref{eq:Iparams},
+\begin{equation}\label{eq:I0}
+ I\le (B^{2/3}+E_\varepsilon)^{3/2}
+ \le I_0=\frac{23129127}{40000000000}.
+\end{equation}
+\end{theorem}
+\begin{proof}
+The first inequality follows from $G=H_\varepsilon+T_\varepsilon$, Proposition \ref{prop:IH}, and Minkowski's inequality. Evaluate the short-time expression outward using positive cube roots at 512 bits. The displayed approximation for $E_\varepsilon$ is $0.00012996912954638279224$. Combining this with the exact $B$ gives an upper enclosure that is an exact dyadic rational, approximately
+$0.00057822817482354580122732$, which is compared exactly with $I_0$. See \src{audit/036_results.json} and the frozen integral manifest for complete endpoints and combination tests. The displayed decimals are not used in place of the endpoints.
+\end{proof}
+
+\section{Exact cost, reproducibility scope, and conclusion}
+\begin{proof}[Proof of Theorem \ref{thm:main}]
+Theorems \ref{thm:g} and \ref{thm:I} supply $g_0,I_0$ for the same actual generator. The positive-part potential proposition and the obstacle comparison allow us to take
+\[
+ c=g_0/3,\qquad K=\frac{(G-g_0/3)_+}{8g_0(1-1/3)}.
+\]
+This is a valid nonnegative even $L^1$ kernel, dominating $\one_{[-1,1]^3}/8$. Lemma \ref{lem:mass} gives $C_3\le\sqrt{27I_0^2/g_0^3}$. Exact rational arithmetic gives
+\[
+ \frac{27I_0^2}{g_0^3}=
+ \frac{1547906585017734375000000000}{24707828464688747938727861},
+\]
+and
+\begin{equation}\label{eq:slack}
+ \left(\frac{1979}{250}\right)^2-\frac{27I_0^2}{g_0^3}
+ =\frac{22590856465666228399282662701}
+ {1544239279043046746170491312500}>0.
+\end{equation}
+All quantities are positive, so squaring preserves the strict comparison, proving \eqref{eq:bound}. The approximate cost is $7.91507592404543687$; this approximation is not used for the strict comparison.
+\end{proof}
+
+The result is a strict upper bound for a fixed Lebesgue background, general $L^1$ inputs, and all common radii. We do not identify $g_0$ as the exact minimum of the Green potential. The value $c=g_0/3$ only optimizes the scalar mass for the given certified lower bound, and we do not determine whether $\tau=1/3$ is optimal among all directional kernels or all $\tau$. The whole-plane short-time allowance avoids an uncontrolled cutoff around singular lines, but may have slack. We do not classify worst-case inputs or determine the exact value of $C_3$.
+
+\appendix
+\section{Certificates, source pinning, and reproduction entry points}\label{app:reproduce}
+All paths below are relative to the project root \src{cube-finite-dim-bounds/}. The deterministic finite tests in the text are paired with the supplementary source. The source hashes identify inputs, but do not independently prove the mathematical conclusions. The baseline commit is \texttt{e5b541b348786b9aa0906}\allowbreak\texttt{eddd6e9d5e2f6453bcf}; the manuscript source has a separate manifest.
+
+\begin{center}\small
+\begin{tabular}{p{.25\textwidth}p{.66\textwidth}}\toprule
+Purpose&Path\\\midrule
+Actual 96 cones and degeneracy checks&\src{audit/032_check.py}, \src{audit/032_audit.md}\\
+Fresh lower-bound check of all 136 blocks&\src{audit/033_check.py}, \src{audit/033_results.json}\\
+Continuous-error and short-time interfaces&\src{audit/034_check.py}, \src{audit/034_audit.md}\\
+Frozen full-node integral program&\src{upper/continuous_bridge/cb11_integral_cheb_check.py}\\
+Full compact integral data manifest&\src{upper/continuous_bridge/cb11_integral_cheb_final_manifest.json}\\
+Independent scalar replay of all 8256 entries&\src{audit/036_check.py}, \src{audit/036_results.json}\\
+Original proof and transfer&\src{upper/u09_frame_transfer.md}, \src{upper/u09_positive_part.md}, \src{proofs/round011_weighted_frame_transfer.md}\\\bottomrule
+\end{tabular}
+\end{center}
+SHA256 checksums for key source files and manifests follow. The archival manifests and the manuscript's \src{source_manifest.json} give the full associated hashes:
+\begin{flushleft}\footnotesize
+\src{audit/033_check.py}\\
+\src{7305f5915bdba606c82922f45626693c48464b9acf55849ea2e41424a9139e64}\\[1mm]
+\src{audit/033_results.json}\\
+\src{6827dd911091941d5918c08ac55e51b48a2b537ae9d72991022dc00a5d82e9ef}\\[1mm]
+\src{upper/continuous_bridge/cb11_integral_cheb_check.py}\\
+\src{4f89a377fbdf263061c2d6525d2101a773f7a6ba4127bb367bd3b7328ed57eb5}\\[1mm]
+\src{upper/continuous_bridge/cb11_integral_cheb_final_manifest.json}\\
+\src{19665768679a50ecb1ae2efed8ec5bb05ceb4a4762abfc08883f971975b578a4}\\[1mm]
+\src{audit/036_check.py}\\
+\src{fe20d14ec426d585b15dc27bb4e14816c223c79577b82800793a896d7222fe48}
+\end{flushleft}
+
+From the project root, in a Python environment with \src{python-flint} and \src{SymPy}, run:
+\begin{verbatim}
+python audit/032_check.py
+python audit/033_check.py
+python audit/034_check.py
+python audit/036_check.py
+python src/round011_sharp_rational_cost.py
+\end{verbatim}
+These commands do not overwrite pinned evidence by default. Check 033 regenerates 59976 nodes; 036 reads only the compact evidence and rechecks all 8256 convex chords, the area, exact sum, short-time combination, and cost, with no new Green nodes. The 033 lower-bound implementation uses independent rational real Hermite evaluations and SymPy polynomial construction, but shares the audited ray data and Arb kernel. Check 036 does not import the authors' aggregation code, but reuses the audited continuous algorithm and original node execution data. It is therefore not a wholly independent second computation of approximately 8.99 million nodes.
+
+To reconstruct the integral nodes from scratch, copy these files to a separate output directory: \src{upper/continuous_bridge/cb11_cones.json}, \src{cb11_integral_cheb_check.py}, and \src{cb11_integral_cheb_selfcheck.py}; the last two also come from \src{upper/continuous_bridge/}. In that output directory run:
+\begin{verbatim}
+python cb11_integral_cheb_check.py --stage part --part 0 --parts 1
+python cb11_integral_cheb_selfcheck.py --parts 1
+python cb11_integral_cheb_check.py --stage aggregate --parts 1
+\end{verbatim}
+The run can be divided into $P$ parts with a fixed integer $P$, but all parts must finish and unique indices must be checked before aggregation. The original run used 12 processes with 688 blocks each, assigning index $i(i+1)/2+j$ modulo 12. Of the $8256\cdot1089=8990784$ nodes, 4356 came from four pinned pilot caches and 8986428 were new in the full batch. All 12 processes actually exited with status $0$. The optional cache is not a mathematical assumption and is unnecessary for a run from scratch. The compact data are approximately 9.29 MB and store each block's exact range, mean, and contribution endpoints. The original node cache and large stdout logs remain outside the repository and are not required for the default portable replay.
+
+The actual first-review environment was Python 3.15, SymPy 1.14.0, and python-flint 0.9.0/Arb. NumPy 2.5.4 and SciPy 1.18.1 were used for candidate generation or module dependencies, not for final rational comparisons. The successful lower-bound run evaluated 59976 fresh nodes at 384 bits. An exact-endpoint conversion was previously fixed after 441 nodes, without changing mathematical parameters. The complete integral run used 384 bits, and the independent scalar checks of all 8256 entries used 512 bits. MATLAB R2026a provided actual cross-checks of the finite Gram matrices, divided-difference identities, error constants, means, convex chords, area, and exact cost, all with recorded exit status. It did not replace the continuous certificate.
+
+While writing the manuscript we recomputed only the standard-library Fraction arithmetic in \eqref{eq:slack}; we did not launch a new parameter search or a production node batch. A complete second review of both the shared theory and the three-dimensional numerical and geometric parts has passed. It used a full 96-cone Newton--Hermite implementation reconstructed from the ten actual directions. At 512 bits it recomputed all 59976 lower-bound nodes and 7623 integral nodes from seven critical blocks, and checked all 8256 scalar convex chords, the area, exact sum, short-time allowance, and cost. It inherited the original node-run evidence for the complete integral and did not rerun all 8990784 integral nodes. The preceding records distinguish the initial review, author execution, and second review, and disclose shared dependencies and limitations. Open review items are listed separately in \src{draft_review_notes.md}; they are not imposed as additional theorem hypotheses.
+
+\begin{thebibliography}{9}
+\bibitem{Aldaz2000} J. M. Aldaz.
+A remark on the centered $n$-dimensional Hardy--Littlewood maximal function.
+\emph{Czechoslovak Mathematical Journal}, 50(1):103--112, 2000.
+\url{https://dml.cz/dmlcz/127554}.
+\bibitem{Aldaz2011} J. M. Aldaz.
+The weak type $(1,1)$ bounds for the maximal function associated to cubes grow to infinity with the dimension.
+\emph{Annals of Mathematics}, 173(2):1013--1023, 2011.
+\url{https://doi.org/10.4007/annals.2011.173.2.10}.
+\bibitem{AldazKissing2020} J. M. Aldaz.
+Kissing numbers and the centered maximal operator.
+arXiv:1811.10478, version 2, 10 March 2020.
+\url{https://arxiv.org/abs/1811.10478}.
+\bibitem{Lin} Yongxi Lin.
+Two partial balayage principles for weak-type estimates.
+Undated manuscript on the author's website, accessed October 25, 2026. We use the framework of its Section 3 and make no claim about journal publication.
+\url{https://coolrmal.github.io/articles/two-partial-balayage-principles/}.
+\end{thebibliography}
+\end{document}

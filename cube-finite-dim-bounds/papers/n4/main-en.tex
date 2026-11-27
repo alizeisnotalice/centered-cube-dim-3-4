@@ -1,0 +1,519 @@
+% !TEX program = xelatex
+\documentclass[11pt,a4paper]{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools,geometry,booktabs,array,longtable,hyperref,fancyvrb}
+\geometry{margin=25mm}
+\setlength{\emergencystretch}{2em}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue,pdftitle={A Rigorous Weak-Type Upper Bound for the Four-Dimensional Centered Cubical Maximal Operator}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}\newtheorem{remark}[theorem]{Remark}
+\newcommand{\R}{\mathbb R}\newcommand{\dd}{\,\mathrm d}
+\newcommand{\1}{\mathbf1}\newcommand{\pos}[1]{(#1)_+}
+\DeclareMathOperator{\supp}{supp}\DeclareMathOperator{\dist}{dist}
+\DeclareMathOperator{\sgn}{sgn}\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\conv}{conv}\DeclareMathOperator{\Dom}{Dom}
+\title{A Rigorous Weak-Type Upper Bound for the Four-Dimensional Centered Cubical Maximal Operator\\\large Finite-Direction Cauchy Potentials and Continuous Polynomial Certificates}
+\author{}
+\date{October 25, 2026\\\normalsize Anonymous review draft: second full review complete; pending author review}
+\begin{document}
+\maketitle
+\begin{abstract}
+We consider the Hardy--Littlewood maximal operator over centered, axis-parallel cubes in four dimensions with respect to Lebesgue measure, using the same radius in all coordinates. For general $L^1$ input and all positive scales we obtain the strict weak-$(1,1)$ upper bound $C_4<14371/1000$. The construction uses the Green potential of independent Cauchy processes in eight body-diagonal directions. We first prove that its positive-part truncation has a finite probability source on the whole space, and use an obstacle decomposition to control all scales off a single contact set. We then split the actual Fourier integral into 1152 cones, cancel the nonvertex stars exactly, and express the potential as a summed rational function on three physical cones. A coefficientwise nonnegativity certificate and an anchor at a degenerate configuration give the exact minimum $17/(640\pi^3)$ of this fixed potential on the closed cube. To bound the integral of its $4/3$ power on a face, affine polynomial residuals on 2440 rational tetrahedra and an analytic corner-cap estimate give the upper bound $92072351/(5\cdot10^{11})$. The final comparison is entirely rational. We give sufficient conditions for the finite certificates, a deterministic reconstruction algorithm, and an index of reproducibility files. The exact minimum pertains only to this potential, not to the optimal maximal-operator constant or to optimality in the entire family of kernels. Both the common analysis and the specific four-dimensional certificates have undergone a second complete review and are now submitted for author review.
+\end{abstract}
+\noindent\textbf{Keywords:} centered maximal operator; weak $(1,1)$ estimate; Cauchy semigroup; Green potential; computer-assisted proof
+\tableofcontents
+
+\section{Problem, results, and relation to the literature}
+Set $Q(x,r)=x+[-r,r]^4$ and define
+\[
+ M^\square_4f(x)=\sup_{r>0}\frac1{(2r)^4}\int_{Q(x,r)}|f(y)|\dd y,
+ \qquad
+ C_4=\sup_{f\ne0,\lambda>0}
+ \frac{\lambda|\{M^\square_4f>\lambda\}|}{\|f\|_1}.
+\]
+Here $f\in L^1(\R^4,\dd x)$; input integration, the output set, and the denominator use the same Lebesgue measure. The radius $r$ is common to all four coordinates; this is not the strong maximal operator with independent side lengths.
+
+\begin{theorem}\label{thm:main}
+The preceding constant satisfies
+\[ C_4<\frac{14371}{1000}=14.371. \]
+\end{theorem}
+The proof consists of an analytic transfer and two finite certificates valid on continuous domains. Specifically, set
+\[
+ V=\{(1,\varepsilon_2,\varepsilon_3,\varepsilon_4):\varepsilon_j\in\{-1,1\}\},
+ \quad\psi(\xi)=\sum_{v\in V}|v\cdot\xi|,\quad L=-\psi(D).
+\]
+The directions are not normalized to unit length. If $p_t$ is the probability density of this semigroup and $G=\int_0^\infty p_t\dd t$, we certify that
+\begin{equation}\label{eq:inputs}
+ \min_{[-1,1]^4}G=g_*:=\frac{17}{640\pi^3},\qquad
+ I:=\int_{[0,1]^3}G(1,y)^{4/3}\dd y\le I_0:=\frac{92072351}{500000000000}.
+\end{equation}
+We then take $K=(G-g_*/4)_+/(12g_*)$ and prove $C_4\le\int K$ and
+\begin{equation}\label{eq:costsummary}
+ (\int K)^3\le256 I_0^3(640/17)^4\pi^{12}<(14371/1000)^3.
+\end{equation}
+This is a constructive upper bound for a fixed model. It does not determine the exact value of $C_4$, a worst-case input, or the optimal choice among potential kernels.
+
+The dimensional dependence of the centered cubical maximal operator has been studied in several ways. Aldaz's fixed-dimensional lower bound and dimensional growth result appear in \cite{Aldaz2000,Aldaz2011}, respectively. His result on kissing numbers \cite{AldazKissing2020} gives a uniform $2^n$-type bound for all locally finite background measures, which includes the present Lebesgue case and gives $C_4\le16$. Sharpness for that larger class does not imply that $C_4=16$ here. We strictly improve this general benchmark from the sources we checked to 14.371, without claiming an exhaustive literature search.
+
+The obstacle argument is related to Lin's online manuscript on partial balayage \cite{LinPartialBalayage}. We provide the existence argument, whole-space positive-part source, and transfer to all common radii needed for this finite-direction model, so the specific constant does not depend on an unspecified version of that manuscript. The computational contribution is the continuous certification after summing and cancelling all cone terms: sampling individual cones, taking the smallest sampled value, obtaining a linear-programming solver status, or reading an audit label does not constitute proof.
+
+\section{The actual semigroup and the obstacle decomposition}
+\subsection{Probability construction and function spaces}
+Use the Fourier convention $\widehat f(\xi)=\int e^{-i\xi\cdot x}f(x)\dd x$, with inverse factor $(2\pi)^{-4}$. Let $Z_t^v$ be independent one-dimensional Cauchy variables of scale $t$, with density $t/[\pi(t^2+s^2)]$. The random sum $X_t=\sum_{v\in V}vZ_t^v$ has characteristic function $e^{-t\psi}$. It therefore yields a symmetric convolution semigroup $P_t$ preserving positivity, constants, and mass.
+
+Choose from $V$ a four-column Hadamard basis $B$ with determinant of absolute value 16. The corresponding four-term sum has density
+\[
+ p_t^B(x)=\frac1{16}\prod_{j=1}^4\frac{t}{\pi(t^2+(B^{-1}x)_j^2)}.
+\]
+Convolution with the probability law of the remaining terms does not increase the $L^\infty$ norm. Thus the actual density $p_t$ is strictly positive and continuous, belongs to $C_0$, and satisfies
+\begin{equation}\label{eq:heatbound}
+ \|p_t\|_\infty\le C t^{-4},\quad C=\frac1{16\pi^4},\qquad p_t(x)=t^{-4}p_1(x/t).
+\end{equation}
+The Gram identity $\sum_v vv^T=8I$ gives $\sqrt8|\xi|\le\psi(\xi)\le8|\xi|$. Thus the operator domain of $L$ on $L^2$ is $H^1$, and its quadratic-form domain is $H^{1/2}$. For a smooth compactly supported test function,
+\begin{equation}\label{eq:generator}
+ L\phi(x)=\frac1{2\pi}\sum_{v\in V}\int_\R
+ \frac{\phi(x+sv)+\phi(x-sv)-2\phi(x)}{s^2}\dd s.
+\end{equation}
+Use a second-order Taylor estimate at small $s$ and bound by $\phi$ itself at large $s$ to obtain $L\phi\in L^1\cap L^\infty\cap C_0$. In particular, for a fixed cutoff $\chi$,
+\begin{equation}\label{eq:cutoff}
+ \|L\chi(\cdot/R)\|_\infty=R^{-1}\|L\chi\|_\infty,
+ \qquad \|L\chi(\cdot/\epsilon)\|_1=\epsilon^3\|L\chi\|_1.
+\end{equation}
+
+\begin{lemma}[Obstacle decomposition]\label{lem:obstacle}
+Given nonnegative, bounded, compactly supported $f$ and $\kappa>0$, there exist $u\ge0$,
+$u\in L^1\cap L^\infty\cap H^1$, and $\sigma\in L^1\cap L^\infty$ such that
+\begin{equation}\label{eq:obstacle}
+ f=\sigma-Lu,\quad 0\le\sigma\le\kappa,\quad
+ \sigma=\kappa\ \text{a.e. on }D:=\{u>0\},\quad \int\sigma=\int f.
+\end{equation}
+Consequently $\kappa|D|\le\|f\|_1$.
+\end{lemma}
+\begin{proof}
+Write $F=\|f\|_\infty$ and $m_f=\|f\|_1$; use the zero solution for zero input. For $0<t\le1$ set
+\[
+ V_t=t\sum_{j\ge0}P_{jt}f,
+ \quad u_{t,0}=0,\quad u_{t,k+1}=\pos{P_tu_{t,k}+t(f-\kappa)}.
+\]
+Since $\|P_sf\|_\infty\le\min(F,Cm_fs^{-4})$, the right-endpoint Riemann sum satisfies
+\[
+ \|V_t\|_\infty\le tF+\frac43(Cm_f)^{1/4}F^{3/4}=:C_f(t)\le C_f.
+\]
+Since $P_tV_t=V_t-tf$, the iterates increase and are bounded by $V_t$. Their limit $u_t$ satisfies the fixed-point equation and $u_t\le(V_t-t\kappa)_+$. The function $V_t-tf$ tends to zero at infinity, so each $u_t$ has essentially compact support and belongs to $L^1\cap L^2$.
+
+Put $L_t=(P_t-I)/t$ and $\sigma_t=f+L_tu_t$. Where $u_t>0$ the fixed-point equality gives $\sigma_t=\kappa$; where $u_t=0$ it gives $0\le\sigma_t\le\kappa$. Mass conservation and pairing give
+\[
+ \int\sigma_t=m_f,\qquad
+ \langle u_t,(I-P_t)u_t\rangle/t+\kappa\|u_t\|_1=\int f u_t.
+\]
+Thus
+\[
+ \|u_t\|_1\le m_f C_f/\kappa,\quad
+ \|u_t\|_2^2\le m_f C_f^2/\kappa,\quad
+ \|\sigma_t\|_2^2\le\kappa m_f,\quad
+ \|L_tu_t\|_2\le\|f\|_2+\sqrt{\kappa m_f}.
+\]
+No integrability of $V_t$ is assumed; the uniform $L^1$ bound comes from the energy identity.
+
+Let $\psi_t=(1-e^{-t\psi})/t$. If $t\le1/Q$ and $\psi\ge Q$, then $\psi_t\ge(1-e^{-1})Q$, so the $L^2$ mass of $\widehat u_t$ on this frequency tail is $O(Q^{-2})$. On a fixed low-frequency range, $\psi_t$ and $\psi$ are uniformly comparable. Local Rellich compactness for the low-frequency truncations and the tail estimate give a subsequence with $u_t\to u$ in $L^2_{\rm loc}$ and almost everywhere, while $u_t,\sigma_t$ converge weakly in $L^2$. Fatou's lemma gives $u\ge0$ and $u\in L^1\cap L^\infty$. For Schwartz tests, $L_t\phi\to L\phi$ in $L^2$, so $Lu=\sigma-f$. The right side is in $L^2$, and $\psi\asymp|\xi|$ gives $u\in H^1$.
+
+The weak limit preserves $0\le\sigma\le\kappa$. At almost every point with $u>0$, eventually $u_t>0$ and hence $\sigma_t=\kappa$. Dominated convergence and weak convergence on bounded subsets give $\sigma=\kappa$ on $D$. First use nonnegative cutoff tests and weak convergence to obtain $\int\sigma\le m_f$. Then test $f=\sigma-Lu$ with $\chi_R\uparrow1$: by \eqref{eq:cutoff} and $u\in L^1$, this yields $\int\sigma=m_f$. Thus mass cannot escape to infinity in the limit.
+\end{proof}
+
+\section{The whole-space source of the positive-part potential and transfer to all scales}
+\subsection{Integrability of the positive part and its probability source}
+\begin{proposition}\label{prop:source}
+Let $G=\int_0^\infty p_t\dd t$, allowing the value $+\infty$. For each $c>0$, $H_c=(G-c)_+$ is nonnegative, even, and in $L^1$, and satisfies the whole-space distributional identity
+\begin{equation}\label{eq:source}
+ LH_c=\mu_c-\delta_0,
+ \qquad \mu_c\ge0,\quad \mu_c(\R^4)=1,\quad\mu_c(\{0\})=0.
+\end{equation}
+\end{proposition}
+\begin{proof}
+Write $U_T=\int_0^Tp_t\dd t$ and $W_T=\int_T^\infty p_t\dd t$. Then $\|U_T\|_1=T$ and $W_T\le CT^{-3}/3$. Set $T=(2C/(3\lambda))^{1/3}$ and use Chebyshev's inequality to obtain
+\[
+ |\{G>\lambda\}|\le2(2C/3)^{1/3}\lambda^{-4/3}.
+\]
+Also $\int_EG\le\int_0^\infty\min(1,C|E|t^{-4})\dd t<\infty$ for finite-measure $E$, so $G$ is locally integrable and finite almost everywhere; layer integration gives $\|H_c\|_1<\infty$. This controls neighborhoods of every directional line and the infinite tail, without inferring integrability from homogeneity alone.
+
+For a test $\phi\in C_c^\infty$, $\int G|L\phi|\le\int_0^\infty\min(\|L\phi\|_\infty,C\|L\phi\|_1t^{-4})\dd t<\infty$. Differentiating the semigroup and using $P_T\phi(0)\to0$ gives $\langle G,L\phi\rangle=-\phi(0)$, that is, $LG=-\delta_0$.
+
+Tonelli's theorem and the semigroup law give $P_tG=\int_t^\infty p_s\dd s$. Positivity and preservation of constants yield
+\[
+ P_tH_c\ge(P_tG-c)_+\ge H_c-U_t.
+\]
+Pair with a nonnegative test, divide by $t$, and let $t\downarrow0$. The left side tends to $\langle H_c,L\phi\rangle$ by $H_c\in L^1$ and $L^\infty$ convergence for the test-function generator; the right side tends to $-\phi(0)$. Thus $LH_c+\delta_0$ is a positive distribution and hence a positive Radon measure $\mu_c$. This whole-space argument includes nonsmooth level interfaces, directional lines, and distant tails.
+
+Testing with $\chi_R\uparrow1$, \eqref{eq:cutoff} gives
+$\int\chi_R\dd\mu_c=1+\int H_cL\chi_R\to1$, so the total mass is one. Finally put $h=\min(G,c)$, so $0\le h\le c$ and $\mu_c=-Lh$. Testing with a nonnegative $\chi_\epsilon$ equal to one near the origin gives
+\[
+ 0\le\int\chi_\epsilon\dd\mu_c=-\int hL\chi_\epsilon
+ \le c\epsilon^3\|L\chi\|_1\longrightarrow0.
+\]
+Hence $\mu_c(\{0\})=0$ and the negative atom at the origin has exactly unit mass.
+\end{proof}
+
+\subsection{Finite-source comparison on the contact set}
+\begin{lemma}\label{lem:finite-source}
+If $H\in L^1$ is nonnegative and even, $LH=\mu-\delta_0$, and $\mu$ is a finite positive probability measure, then for $u\in H^1$,
+\begin{equation}\label{eq:commute}
+ H*Lu=\mu*u-u
+\end{equation}
+both distributionally and in $L^2$. If $u\ge0$, the right side is nonnegative almost everywhere on $\{u=0\}$.
+\end{lemma}
+\begin{proof}
+Since $H\in L^1$ and $\psi|\widehat\phi|\in L^1$, Fourier inversion and Fubini on Schwartz tests show that the Fourier transform of the tempered distribution $LH$ is $-\psi\widehat H$. Thus the whole-space source identity gives the continuous-function identity
+\[
+ -\psi(\xi)\widehat H(\xi)=\widehat\mu(\xi)-1.
+\]
+Multiply both sides by $\widehat u$ for $u\in H^1$. Since $\psi\widehat u\in L^2$, $H\in L^1$, and $\mu$ is finite, the two sides are the $L^2$ transforms of $H*Lu$ and $\mu*u-u$, proving \eqref{eq:commute}. This avoids convolving arbitrary distributions of noncompact support. Convolution by a finite positive measure preserves nonnegativity. Even if $\mu$ is concentrated on directional lines, Fubini for $\dd x\dd\mu$ gives nonnegativity almost everywhere, yielding the conclusion on $\{u=0\}$.
+\end{proof}
+
+\begin{proposition}[All-scale comparison for this construction]\label{prop:transfer}
+If $G\ge g>0$ on $[-1,1]^4$, take $0<c<g$ and set
+\[
+ A=16(g-c),\qquad K=H_c/A,\quad M=\int K,\quad K_r(x)=r^{-4}K(x/r).
+\]
+Then $K\ge\1_{[-1,1]^4}/16$. For general $f\in L^1$ and $\lambda>0$,
+\[
+ \lambda|\{\sup_{r>0}K_r*|f|>\lambda\}|\le M\|f\|_1.
+\]
+Consequently $C_4\le M$.
+\end{proposition}
+\begin{proof}
+First take nonnegative, bounded, compactly supported $f$ and apply Lemma \ref{lem:obstacle} with $\kappa=\lambda/M$. The first-order homogeneity of $L$ and \eqref{eq:source} give
+\[
+ LH_{c,r}=r^{-1}(\mu_{c,r}-\delta_0),
+ \quad H_{c,r}(x)=r^{-4}H_c(x/r),
+\]
+where $\mu_{c,r}$ is the pushforward of $\mu_c$ under $x\mapsto rx$. Lemma \ref{lem:finite-source} then gives
+\[
+ K_r*Lu=(Ar)^{-1}(\mu_{c,r}*u-u)\ge0\quad\text{a.e. on }D^c.
+\]
+The same $u,\sigma,D$ serve for every $r$, so $f=\sigma-Lu$ gives
+$K_r*f\le K_r*\sigma\le\kappa M=\lambda$ on $D^c$.
+First exclude the countably many null sets for positive rational $r$. Continuity of dilation in $L^1$ and
+\[
+ \|K_r*f-K_s*f\|_\infty\le\|f\|_\infty\|K_r-K_s\|_1
+\]
+extend the conclusion to all real $r>0$. The bad set lies in $D$ modulo a null set, so the desired inequality follows from $\kappa|D|\le\|f\|_1$.
+
+For general input set $f_j=\min(|f|,j)\1_{[-j,j]^4}\uparrow|f|$. Nonnegative convolution and the supremum over scales commute with this monotone limit, and both the bad-set measure and the mass converge monotonically. Each truncated supremum is measurable by the rational-scale description, so the limit is also measurable. Finally the cube majorization gives $M_4^\square f\le\sup_rK_r*|f|$ scale by scale.
+\end{proof}
+\begin{remark}
+This finite-source argument proves the theorem for our kernel without a theory of conditional negative definiteness for arbitrary kernels or closure under infinite L\'evy sources. The Lebesgue background is used for self-adjoint convolution, mass conservation, Fourier analysis, Fubini in $\dd x$, $K*\sigma\le\kappa\int K$, and $\kappa|D|\le\int\sigma$. These steps cannot simply be transferred to a variable background measure.
+\end{remark}
+
+\subsection{Homogeneous mass formula and the cost on one face}
+Scaling $p_t$ gives $G(rx)=r^{-3}G(x)$, including infinite values. Write $V_1=|\{G>1\}|$. The weak-$L^{4/3}$ estimate above gives $V_1<\infty$ and homogeneity yields $|\{G>s\}|=V_1s^{-4/3}$. Set
+\[
+ J=\sum_{\text{eight faces}}\int_{\text{face}}G(y)^{4/3}\dd S(y).
+\]
+Using the cube boundary as the radial cross-section, $x=ry$ has volume element $r^3\dd r\dd S(y)$. Tonelli gives $V_1=J/4$. Therefore
+\begin{equation}\label{eq:mass}
+ \int H_c=3V_1c^{-1/3}=\frac34Jc^{-1/3}.
+\end{equation}
+Cube symmetry gives $J=8\cdot8 I=64I$. Hence
+\[
+ \int K=\frac{3Jc^{-1/3}}{64(g-c)}.
+\]
+The logarithmic derivative for $c\in(0,g)$ gives the unique minimum $c=g/4$. There,
+\begin{equation}\label{eq:massbound}
+ C_4\le\int K=4^{4/3}Ig^{-4/3}.
+\end{equation}
+This scalar optimization concerns only the truncation parameter $c$ for fixed $G,g$.
+
+\section{The 1152 spectral cones and the Green representation}
+\subsection{Three-cone covering and normalization constants}
+In the ordered chamber $a\ge b\ge c\ge d\ge0$, expand the eight absolute values to get
+\[
+ \psi=6a+2b+2c+2\max(|a-b-c|,d)
+ =\max\{8a,4(a+b+c),2(3a+b+c+d)\}.
+\]
+Set
+\[
+ A=(1,0,0,0),\ B=(1,1,0,0),\ C=(1,1,1,0),\ D=(1,1,1,1),
+ \ E=(2,1,1,0),\ F=(3,1,1,1).
+\]
+The column matrices $R$ and inverse coordinates in the following table define three simplicial cones.
+\begin{center}\small
+\begin{tabular}{cclc}\toprule
+Region&Columns of $R$&$R^{-1}(a,b,c,d)^T$&$|\det R|$\\\midrule
+I&$A,B,E,F$&$(a-b-c-d,b-c,c-d,d)$&1\\
+II&$E,B,C,D$&$(a-b,b-c,b+c-a-d,d)$&1\\
+III&$E,B,D,F$&$(c-d,b-c,(-a+b+c+d)/2,(a-b-c+d)/2)$&2\\\bottomrule
+\end{tabular}
+\end{center}
+The nonnegative inverse coordinates are equivalent to $a-b-c\ge d$, $a-b-c\le-d$, and $|a-b-c|\le d$, respectively, within the ordered chamber. Thus the interiors are disjoint and the closures cover the chamber. The 384 signed permutations give 1152 cones with disjoint interiors and overlaps only on boundaries of zero four-dimensional measure. For each $v$, its projections on the four rays of any cone have the same weak sign, so $\psi$ is linear on the entire cone; the signs are not inferred from a single interior point.
+
+The values of $q_r=\psi(r)$ at $A,B,C,D,E,F$ are $8,8,12,12,16,24$, respectively. The volume of the simplex cut from each cone by the unit ball of $\psi$ is $|\det R|/(24\prod_jq_{r_j})$. Summing gives
+\begin{equation}\label{eq:peak}
+ |\{\psi\le1\}|=\frac{11}{4608},\qquad p_t(0)=\frac{11}{3072\pi^4t^4}.
+\end{equation}
+The full decomposition has 240 distinct oriented rays, not all of which are vertices of the spectral unit ball. At $r/\psi(r)$, the rank of the active halfspace normals is $1+\rank\{v\in V:v\cdot r=0\}$: the nonzero terms give a gradient with nonzero pairing with $r$, and sign changes of the zero terms span exactly the orthogonal directions $v$. The ranks of the zero directions in the six classes are $0,3,0,3,2,1$. The only actual vertices are therefore the 24 points of the $B/8$ orbit and the 16 points of the $D/12$ orbit, for a total of 40.
+
+\subsection{Time integration and zero or repeated nodes}
+On each cone substitute $\xi=\sum_j u_jr_j$. The absolutely convergent Fourier integral gives
+\begin{equation}\label{eq:ptcones}
+ p_t(x)=(2\pi)^{-4}\sum_R|\det R|\prod_{j=1}^4(tq_{r_j}-ix\cdot r_j)^{-1}.
+\end{equation}
+The opposite cone gives the conjugate term. The full sum is the probability density above; no individual term with negative real part may be discarded.
+
+Set $b_j=x\cdot r_j/q_{r_j}$ and $\alpha_R=|\det R|/\prod q_{r_j}$. At distinct nonzero nodes the partial-fraction decomposition is
+\[
+ \prod_j(t-ib_j)^{-1}=\sum_j\frac{i}{\prod_{k\ne j}(b_j-b_k)}\frac1{t-ib_j}.
+\]
+Integrating from $\epsilon$ to infinity and using that the simple-pole coefficients sum to zero gives $-i\,\operatorname{DD}_3(\log(\epsilon-i\,\cdot);b)$. Since
+$\log(-ib)=\log|b|-i\pi\sgn(b)/2$, taking real parts yields
+\begin{equation}\label{eq:DD}
+ G(x)=-\frac1{32\pi^3}\sum_R\alpha_R
+ \operatorname{DD}_3(\sgn;b_1,b_2,b_3,b_4).
+\end{equation}
+For example, the third divided difference at $(-1,-2,1,2)$ is $-1/6$, while the corresponding integral is $\int_0^\infty[(t^2+1)(t^2+4)]^{-1}\dd t=\pi/12$. At repeated nonzero nodes $(-1,-1,1,1)$ the divided difference is $-1/2$ and the integral is $\pi/4$. Together these examples calibrate the sign, the factor $1/32$, and $\pi^3$.
+
+At zero nodes one cannot set $\sgn(0)=0$ separately on each cone. For instance, a cone with nodes $(0,0,1,-1)$ gives a truncated time integral containing a $1/\epsilon$ term. The complete algorithm for degenerate nodes is as follows. For a distinct node $b$ of multiplicity $m_b$ in a cone, write the coefficient of the pole of order $k$ as $i^{k-4}R_{b,k}$, where
+\begin{equation}\label{eq:residue}
+ R_{b,k}=\alpha_R[z^{m_b-k}]\prod_{a\ne b}(b-a+z)^{-m_a}.
+\end{equation}
+The coefficient of order $\ell$ in each factor is $(-1)^\ell\binom{m_a+\ell-1}{\ell}(b-a)^{-m_a-\ell}$. Sum the rational coefficients for each $(b,k)$ over all 1152 cones before integrating.
+
+\begin{lemma}\label{lem:continuity}
+Let $S=\bigcup_{v\in V}\R v$. Then $G$ is finite and continuous on $\R^4\setminus S$ and equals $+\infty$ on $S$.
+\end{lemma}
+\begin{proof}
+On a compact set at distance $d>0$ from $S$, use $\delta=d/32$. If at most one of the eight $Z_t^v$ has absolute value exceeding $\delta$, their sum is within $d/2$ of a body diagonal and cannot lie in the compact set. At least two variables must therefore exceed $\delta$ in absolute value. Any two distinct directions can be completed to a four-column basis with determinant of absolute value at least 8. The two restricted Cauchy densities are each bounded by $t/(\pi\delta^2)$, the other two basis densities by $1/(\pi t)$, and the remaining variables contribute a probability convolution. Summing over the 28 pairs gives the locally uniform small-time bound $28/(8\pi^4\delta^4)$; large times are controlled by \eqref{eq:heatbound}. Dominated convergence proves finiteness and continuity.
+
+If $x=av$, choose a basis $B$ containing $v$ and let $Y_t$ be the sum of the remaining terms. The event $\|B^{-1}Y_t\|_\infty\le t$ has positive probability independent of $t$. On it, the Cauchy density for the $v$ coordinate has lower bound $c_at$, and each of the other three has lower bound $c/t$. Thus $p_t(av)\ge c'_at^{-2}$ for small $t$, and its small-time integral diverges. Divergence at the origin also follows directly from \eqref{eq:peak}.
+\end{proof}
+Off the lines, \eqref{eq:ptcones} is a rational function of $t$ bounded near zero, so all principal parts for $b=0$ vanish after summation. For nonzero $b$, the time integrals of the terms with $k\ge2$ have zero real part, because
+$i^{k-4}(-ib)^{1-k}/(k-1)$ is purely imaginary. The resulting formula for all nodes is
+\begin{equation}\label{eq:allnodes}
+ \pi^3G(x)=-\frac1{32}\sum_{b\ne0}R_{b,1}\sgn b.
+\end{equation}
+The formula applies at every rational point off the lines, including those with zero and repeated nodes. The algorithm gives exactly
+\begin{equation}\label{eq:anchors}
+ \pi^3G(1,0,0,0)=3/32,\quad
+ \pi^3G(1,1,0,0)=1/24,\quad
+ \pi^3G(1,1,1,0)=17/640.
+\end{equation}
+These points serve as implementation checks, with the last attaining the minimum. Validity at degeneracies follows from Lemma \ref{lem:continuity} and summing pole coefficients over every cone.
+
+\section{Summed rational form and exact minimum on the closed cube}
+\subsection{Star identities and the three physical cones}
+For each ray define
+\[
+ S_r(x)=\sum_{R\ni r}\frac{\alpha_R}
+ {\prod_{s\in R,s\ne r}(x\cdot r/q_r-x\cdot s/q_s)}.
+\]
+This definition is at the level of rational-function identities. Bringing terms to a common denominator, adding the polynomials exactly, and reducing gives $S_A=S_C=S_E=S_F=0$ among the six representatives. Direct cancellation proves these identities without inferring vanishing merely from nonvertex status. For every signed permutation $T$, $S_{Tr}(x)=S_r(T^Tx)$ and $S_{-r}=-S_r$, so the six identities determine all 240 rays.
+
+The two nonzero representatives have short formulas. Put $u=a+b$, $v=ab$, $s=c^2+d^2$, and $t=c^2d^2$,
+\[
+ P_B=vu^2(u^2+v)-v(5u^2+4v)s+4vs^2+(13u^2-32v-4s)t,
+\]
+Set
+\begin{align*}
+ Q_B&=(a^2-c^2)(a^2-d^2)(b^2-c^2)(b^2-d^2),\\
+ U_B&=(u^2-4(c+d)^2)(u^2-4(c-d)^2),\\
+ Q_D&=(a-2b-2c+d)(a-2b+c-2d)(a+b-2c-2d),\\
+ U_D&=(2a-b-c+2d)(2a-b+2c-d)(2a+2b-c-d).
+\end{align*}
+Then
+\[
+ S_B=\frac{u^3P_B}{2Q_BU_B},\qquad
+ S_D=\frac{-(9/2)(a+b+c+d)^3}{Q_DU_D}.
+\]
+Individual star denominators can contain artificial projection poles. Take the removable extension only after summing.
+
+After pairing $\pm r$, the factor in \eqref{eq:DD} becomes $-1/16$. Use the 12 representatives $e_i\pm e_j$ ($i<j$) of the $B$ lines and the 8 representatives $(1,\pm1,\pm1,\pm1)$ of the $D$ lines. Transform the two stars above by signed permutations, multiply by $\sgn(x\cdot r)$, and sum to obtain
+\begin{equation}\label{eq:globaldef}
+ \pi^3G=-\frac1{16}\left(\sum_{12\ B\text{ lines}}S_r\sgn(x\cdot r)
+ +\sum_{8\ D\text{ lines}}S_r\sgn(x\cdot r)\right)
+ =\frac{N_j(a,b,c,d)}{D_j(a,b,c,d)}.
+\end{equation}
+In the interiors of the three physical cones I, II, and III, the $B$ representatives have positive projections; the $D$ representatives have 8, 6, and 7 positive projections, respectively. For each projection, checking that its values on the four rays have the same weak sign and are not all zero establishes the sign throughout the interior. Combining and reducing gives $\deg N_j=17$ and $\deg D_j=20$.
+
+The full sparse dictionaries are lengthy. We use \eqref{eq:globaldef} and the two stars as the deterministic reconstruction specification; the locked dictionaries are attached for cross-multiplication checks. The sufficient conditions are as follows: in each case, the reconstructed sum of 20 terms and $N_j/D_j$ agree by cross multiplication; after substituting $R_ju$, the 20 linear factors of $D_j$ can each be oriented as a nonnegative nonzero linear form, with positive overall factor. Thus $D_j(R_ju)>0$ when every $u_i>0$.
+
+\subsection{Exact coefficient certificate}
+Put $A_j=a^3N_j$. Substitute $R_ju$ into $A_j,D_j$ and expand as homogeneous polynomials of degree 20. All nonzero coefficients are positive. The exact minimum coefficient ratios and support data are
+\begin{center}
+\begin{tabular}{ccccc}\toprule
+Case&Nonzero terms of $A$&Nonzero terms of $D$&Terms in $A$ only&$\min_{D_\alpha>0}A_\alpha/D_\alpha$\\\midrule
+I&1739&1739&0&$1/24$\\
+II&1702&1683&19&$17/640$\\
+III&1702&1683&19&$482191/13088544$\\\bottomrule
+\end{tabular}
+\end{center}
+Each of II and III has 19 coefficients exclusive to $A$; their respective minima are $695784701952$ and $260919263232$, both strictly positive. There are no terms in $D$ but not $A$. Thus the terms outside the support of $D$ must also be checked. Exact expansion proves that
+\begin{equation}\label{eq:minpoly}
+ [a^3N_j-(17/640)D_j](R_ju)
+ \quad\text{has all coefficients nonnegative}.
+\end{equation}
+A finite, reproducible sufficient condition is nonnegativity of the rational coefficients on the full union of supports, treating absent coefficients as zero. This proves the polynomial inequality for all $u_i\ge0$ and does not merely test finite points.
+
+\begin{theorem}\label{thm:min}
+This fixed Green potential satisfies $\min_{[-1,1]^4}G=17/(640\pi^3)$.
+\end{theorem}
+\begin{proof}
+At generic interior points of the cones, the denominator is positive and \eqref{eq:minpoly} gives $a^3\pi^3G\ge17/640$. Inside the cube, $0<a=\max|x_i|\le1$, so $G\ge17/(640\pi^3)$. Approach ordering boundaries, physical-cone boundaries, and removable points with $D=0$ by generic sequences in the corresponding cone interiors. Off the lines, continuity from Lemma \ref{lem:continuity} transfers the bound; on the lines $G=\infty$, including the origin. Lower semicontinuity alone does not transfer a dense-set lower bound to boundary points. The point $(1,1,1,0)$ in \eqref{eq:anchors} belongs to the cube and attains the bound exactly.
+\end{proof}
+The coefficient ratios only give the bounds available to this monomial certificate. They do not imply attainment of the individual ratios by the actual functions in cases I or III, nor do we claim uniqueness of the minimizer.
+
+\section{A finite continuous certificate for the face integral}
+\subsection{Sufficient conditions on a tetrahedron}
+On the face $a=1$ let $H=\pi^3G$ and $\widetilde N_j=a^3N_j$, so $H=\widetilde N_j/D_j$. Let $x_i=(1,b_i,c_i,d_i)$, $i=0,1,2,3$, be the vertices of a tetrahedron $T$. Write $x=\sum_i v_ix_i$, with $v_i\ge0$ and $s_v=\sum_i v_i=1$. Write $N(v),D(v)$ for the degree-20 homogeneous polynomials after linear substitution.
+
+Each cell is assigned four nonnegative rationals $P_i$; set $P(v)=\sum_iP_iv_i$. It suffices to check exactly that
+\begin{equation}\label{eq:residual}
+ D(v)\not\equiv0,\quad [v^\alpha]D\ge0,\qquad
+ [v^\alpha]\{P(v)D(v)-N(v)s_v\}\ge0\quad\text{for every }\alpha.
+\end{equation}
+Then $D>0$ in the interior and $0\le H\le P$; the lower bound is from nonnegativity of the probability potential. Convexity of $z^{4/3}$ and $\int_Tv_i=|T|/4$ give
+\begin{equation}\label{eq:tetbudget}
+ \int_TG^{4/3}\le\frac{|T|}{4\pi^4}\sum_{i=0}^3P_i^{4/3}.
+\end{equation}
+The denominator is $\pi^4=(\pi^3)^{4/3}$. Cell boundaries with $D=0$ have zero three-dimensional measure and may be ignored in the integral, but no neighborhoods of them were removed. Pointwise boundary behavior for the minimum was treated separately in Theorem \ref{thm:min}.
+
+Floating-point linear programming found the candidate $P_i$, but the proof uses no optimization. For a coefficient constraint $A_\alpha\cdot P\ge B_\alpha$, let $s_\alpha=\sum_i(A_\alpha)_i$. After rationalization, increase every $P_i$ by
+\[
+ \Delta=\max\{0,\max_{s_\alpha>0}(B_\alpha-A_\alpha\cdot P)/s_\alpha\}
+\]
+to account for rounding exactly. Rows with $s_\alpha=0$ require a separate check of $B_\alpha\le0$. The final certificate contains only exact $P_i$; the checker recomputes the full \eqref{eq:residual} without trusting solver tolerances.
+
+\subsection{Nonoverlapping covering by 2440 cells}
+Split the positive face $[0,1]^3$ into six coordinate orderings of $b,c,d$. On the ordered domain
+$T_{\rm ord}=\{0\le d\le c\le b\le1\}$, the three root tetrahedra are the sections given by dividing the spectral cone rays by their first coordinates:
+\begin{align*}
+ T_I&=\conv\{(0,0,0),(1,0,0),(1/2,1/2,0),(1/3,1/3,1/3)\},\\
+ T_{II}&=\conv\{(1/2,1/2,0),(1,0,0),(1,1,0),(1,1,1)\},\\
+ T_{III}&=\conv\{(1/2,1/2,0),(1,0,0),(1,1,1),(1/3,1/3,1/3)\}.
+\end{align*}
+The volumes are $1/36,1/12,1/18$. Coverage and disjointness of interiors follow from the established inverse coordinates for the three cones; the sum of volumes $1/6$ is only a cross-check.
+
+Apply eight rounds of longest-edge midpoint bisection to $T_I$, yielding 256 leaves. Compare exact rational squared edge lengths, breaking ties by the lexicographically least pair of vertex indices. In each bisection form two children by replacing the two endpoints, one at a time, by the midpoint. The common plane separates the children, whose interiors are disjoint and whose union is the parent.
+
+For II and III set $q=(1,1,1)$ and denote the three other vertices by $A',B',C'$. Use the coordinates relative to $q$, $x-q=\lambda_1(A'-q)+\lambda_2(B'-q)+\lambda_3(C'-q)$ and $t=\sum\lambda_i$. Shell $k$ is $s/2\le t\le s$, with $s=2^{-k}$ and $k=0,\ldots,27$. In relative coordinates split the shell into
+\[
+ (sA',sB',sC',sA'/2),\quad
+ (sB',sC',sA'/2,sB'/2),\quad
+ (sC',sA'/2,sB'/2,sC'/2).
+\]
+Here $A',B',C'$ denote the vectors based at $q$. The three regions are respectively defined by
+$t+\lambda_1\ge s$, $t+\lambda_1\le s\le t+\lambda_1+\lambda_2$, and $t+\lambda_1+\lambda_2\le s$. For $s=1$, the three sets of barycentric coordinates are
+\begin{align*}
+ &(\lambda_1+t-1,\lambda_2,\lambda_3,2(1-t)),\\
+ &(t+\lambda_1+\lambda_2-1,\lambda_3,2\lambda_1,2(1-t-\lambda_1)),\\
+ &(2t-1,2\lambda_1,2\lambda_2,2(1-t-\lambda_1-\lambda_2)).
+\end{align*}
+They sum to one, reconstruct the original coordinates, and are nonnegative exactly under their respective threshold conditions. The ordered thresholds thus partition the shell into regions with disjoint interiors. Scaling gives the general $s$.
+
+Bisect every shell tetrahedron for $\max(0,8-2k)$ more rounds by the same rule. II and III give 2184 cells, for 2440 total. The exact covered volume is
+\[
+ |T_{\rm covered}|=\frac16-\frac5{36\,2^{84}}.
+\]
+The only omitted pieces are the corner tetrahedra in II and III with $t<2^{-28}$. The other vertices are at distance at most $\sqrt2$ from $q$, so the remainder satisfies $|x-q|<2^{-27}$. The remainder after all six permutations is still in the same corner cap on the positive face.
+
+\subsection{Analytic budget for the corner cap at a directional line}
+The following whole-space probability estimate accounts for the cap, rather than assigning zero mass to an uncovered neighborhood. For each ordered pair $i\ne j$, complete $v_i,v_j$ to a four-column body-diagonal basis, taking the maximum absolute determinant $d_{ij}$. Exact enumeration of 56 pairs gives 32 with determinant magnitude 8 and 24 with 16, hence $S_0=\sum_{i\ne j}1/d_{ij}=11/2$.
+
+At a cube-face point with $|x|\ge1$, put $a_0=1/32$, $d=\dist(x,S)$, and $\delta=d/32$. If $X_t=x$, some $|Z_t^i|\ge a_0$; otherwise $|X_t|<1/2$. If all other terms are at most $\delta$ in absolute value, the distance to $\R v_i$ is less than $d/2$, a contradiction. Thus there is an ordered pair whose two restricted densities are bounded by $t/(\pi a_0^2)$ and $t/[\pi(\delta^2+t^2)]$. The other two basis densities are bounded by $1/(\pi t)$ each, with the remaining variables contributing a probability convolution. Summing over 56 pairs gives
+\[
+ p_t(x)\le\frac{5632}{\pi^4(\delta^2+t^2)}.
+\]
+Integrate this inequality over $0<t<1$ and use \eqref{eq:heatbound} for $t\ge1$ to obtain
+$G\le D_0+5632/(2\pi^3\delta)$, where $D_0=1/(48\pi^4)$.
+
+Each body diagonal meets the face $x_1=1$ at a point $q'$ of Euclidean norm 2 in the ambient space, so the distance to that line is at least $|y-q'|/2$, using face coordinates for the difference. In a face ball of radius less than 1 centered at $q=(1,1,1)$, all other intersection points are separated from $q$ by at least 2, making $q$ the unique nearest intersection. Setting $r=|y-q|$ gives $\delta\ge r/64$, and hence
+\begin{equation}\label{eq:capbound}
+ G(1,y)\le D_0+B_0/r,\qquad B_0=180224/\pi^3.
+\end{equation}
+Apply $(a+b)^{4/3}\le2^{1/3}(a^{4/3}+b^{4/3})$ and integrate over the full three-dimensional ball to get
+\begin{equation}\label{eq:cap}
+ E_4(\epsilon)=2^{1/3}4\pi\left( D_0^{4/3}\epsilon^3/3+
+ \frac35B_0^{4/3}\epsilon^{5/3}\right).
+\end{equation}
+At $q$ only one octant of the ball lies on the positive face, so the radial majorant costs only $E_4/8$. No additional reflection symmetry of $G$ about $q$ is required.
+
+\subsection{Integral accounting and exact upper endpoint}
+All 2440 cells satisfy \eqref{eq:residual}; there are 4932474 nonzero degree-21 residual coefficients in the exact recomputation, all nonnegative. Thus
+\begin{equation}\label{eq:Ifinal}
+ I\le\frac6{4\pi^4}\sum_{j=1}^{2440}|T_j|\sum_{i=0}^3P_{ji}^{4/3}
+ +\frac18E_4(2^{-27})<\frac{92072351}{500000000000}.
+\end{equation}
+The factor 6 applies only to the ordered cells; the cap is counted once. Repeating factors for faces, octants, or orderings would change the budget.
+
+The budget expression on the left of \eqref{eq:Ifinal} was enclosed outward with 256-bit Arb arithmetic. Its upper endpoint and the cap term are approximately
+\[ 0.0001841447010739849311214820756,\qquad3.5270801566565500745\cdot10^{-9}.\]
+These decimals are for display only. The certificate results contain the exact rational upper endpoint, which is checked against $I_0$ by rational comparison. This is an upper bound for $I$, not a two-sided enclosure of the actual integral.
+
+\section{Strict rational comparison of the costs}
+Theorem \ref{thm:min}, \eqref{eq:Ifinal}, and \eqref{eq:massbound} yield
+\[
+ (\int K)^3\le256I_0^3(640/17)^4\pi^{12}
+ =\frac{6244212653911047061276408}{1944624818861484527587890625}\pi^{12}.
+\]
+For a fully rational final comparison, write $A_m(x)=\sum_{k=0}^{m-1}(-1)^kx^{2k+1}/(2k+1)$. The alternating remainder gives
+$\arctan(1/5)<A_{13}(1/5)$ and $\arctan(1/239)>A_4(1/239)$. Let $\theta=4\arctan(1/5)-\arctan(1/239)$. The tangent addition and subtraction formulas give $\tan\theta=1$ and $0<\theta<\pi/2$, proving Machin's identity
+\[
+ \pi=16\arctan(1/5)-4\arctan(1/239)
+ <16A_{13}(1/5)-4A_4(1/239)<355/113.
+\]
+The last comparison is finite and rational. The branch is fixed by $4\arctan(1/5)<4/5<\pi/2$ and $\pi>2$.
+Set $B=256I_0^3(640/17)^4(355/113)^{12}$. Exact computation gives
+\[
+ (14371/1000)^3-B=
+ \frac{2439293356294278395819615382243120026281259439}
+ {17676938664604974026861767968798828125000000000}>0.
+\]
+All quantities are positive and the cube root preserves strict order, so Proposition \ref{prop:transfer} proves Theorem \ref{thm:main}. Using the true value of $\pi$ gives a displayed cost upper bound of about 14.3707723941513. The proof does not depend on this display value.
+
+\section{Computational certificates, reproducibility, and scope}
+Computation is used to prove finite algebraic assertions. The representation checks must verify geometric coverage, actual rates, Fourier normalizations, all star identities, the full 20-term sum, and all degeneracy rules. The minimum checks must verify the full support in \eqref{eq:minpoly} and denominator positivity in the interior. The integral checks must verify the deterministic geometry, every $P_i$, the complete residual, and the final outward enclosure. A PASS string cannot replace any of these mathematical conditions.
+
+The exact certificate inputs are the two stars, three dictionaries of summed polynomials, and 2440 rational affine majorants. The checker reconstructs the geometry and all coefficients without the original optimizer, sample points, or an external author directory. Initial review 035 independently reconstructed the 1152 cones and six stars, then rechecked all residuals using a different implementation of the geometry; 037 rechecked the exact minimum using monomial-by-monomial substitution. These share the exact polynomial and Arb arithmetic implementations in Fraction, SymPy, and python-flint, as well as the locked $N/D$ dictionaries whose representation was verified. We therefore do not call them fully independent proofs with distinct arithmetic foundations. MATLAB checks only the finite determinants, constants, and costs, and does not replace the proof for the 2440 continuous cells.
+
+A second complete review of the common analysis and the four-dimensional proof accepted $C_4<14.371$. That review regenerated all cones, stars, the full rational sum, and all cells. It verified the degenerate anchors by taking residues of the overall univariate rational function and recomputed residuals by exponent shifts. The complete 512-bit Arb budget passed. The review of the common analysis accepted the finite-source Fourier comparison. The independent checks still share the disclosed arithmetic libraries and exact inputs, and this manuscript remains an author-review draft. See \path{draft_review_notes.md} for the audit and writing records, and \path{source_manifest.json} for sources and SHA-256 hashes. These files refer to locked evidence in the research project root rather than duplicating the large certificates.
+
+\appendix
+\section{Finite reconstruction algorithm and entry points}
+The following reconstruction order requires neither search nor parameter optimization.
+\begin{enumerate}
+ \item Enumerate the 24 coordinate permutations, 16 sign patterns, and three basic sets of rays, and deduplicate exactly to obtain 1152 cones. Compute each ray's $q=\sum_v|v\cdot r|$, the determinants, and the common weak sign of each body-diagonal form throughout the cone.
+ \item For each of the six ray representatives sum its star over cones, using common denominators and polynomial gcd reduction. Check the four zero stars and the two displayed formulas. Transform them along the 12 $B$ lines and eight $D$ lines. In each of the three physical cases, sum with the signs valid throughout the cone, and cross-multiply against the dictionary.
+ \item Using \eqref{eq:residue}, sum the exact Laurent coefficients over all 1152 cones, check cancellation of principal parts at zero nodes, and evaluate the anchors by \eqref{eq:allnodes}. Together with the generic rational sum, this checks the implementation at degenerate configurations.
+ \item In each case substitute $x=R_ju$ into $a^3N,D$. The powers from 0 to 20 of the four linear forms can be cached before multiplying and accumulating monomials. Check \eqref{eq:minpoly} on the full support, including terms with $D_\alpha=0$.
+ \item Generate the 2440 cells in deterministic order from the three root tetrahedra, longest-edge bisection, and 28 shells. For every cell check agreement of the certificate vertices, positive volume, $P_i\ge0$, nonzero $D$, and all coefficients in \eqref{eq:residual}. Compute the total volume with exact determinants; coverage itself follows from the analytic shell argument.
+ \item Use at least 256-bit Arb arithmetic to enclose all positive cube roots, $\pi$, and the sum in \eqref{eq:Ifinal}. Compare the rational upper endpoint to $I_0$ exactly. Use Fraction to evaluate the Machin bounds and the final difference of cubes.
+\end{enumerate}
+Run the following from the repository root. By default, these commands only report results without changing existing evidence:
+\begin{Verbatim}[fontsize=\small]
+python cube-finite-dim-bounds/audit/035_check.py
+python cube-finite-dim-bounds/audit/037_check.py
+python cube-finite-dim-bounds/src/verify_round011_n4_integral.py
+\end{Verbatim}
+The dependencies are Python, SymPy, and python-flint; the manifests for 035/037 give the actual versions and run records. The third command is the portable integral entry point, correcting absolute paths to external clones in the historical producer; the first two already locate the project relative to the script directory. The portable input check with \texttt{--inputs-only} only verifies paths and geometry and is not full integral certification. Full verification takes roughly a minute, depending on the machine and library versions.
+
+\section{Key evidence index}
+All paths below are relative to \texttt{cube-finite-dim-bounds/}; full hashes appear in the machine-readable manifest.
+\begin{center}\small
+\begin{tabular}{p{.59\linewidth}p{.32\linewidth}}\toprule
+File&Proof obligation\\\midrule
+\texttt{upper/u11\_representation.md}&Cone representation, normalization, and degenerate nodes\\
+\texttt{upper/u11\_minimum\_global\_results.json}&Three exact $N_{17}/D_{20}$ dictionaries\\
+\texttt{upper/u11\_minimum\_star\_results.json}&Exact star dictionaries\\
+\texttt{upper/continuous\_integral\_n4/ci4b\_certificate.json}&2440 exact $P_i$ sets and geometric identifiers\\
+\texttt{audit/035\_representation\_check.py}&Independent cone, star, and full-sum reconstruction\\
+\texttt{audit/035\_integral\_check.py}&Independent geometry, residual, and integral checks\\
+\texttt{audit/037\_check.py}&Exact minimum coefficient ratios and costs\\
+\texttt{proofs/round011\_face\_caps.md}&Probability majorant and cap integration\\
+\texttt{upper/u09\_positive\_part.md}&Whole-space positive-part probability source\\
+\texttt{upper/u09\_frame\_transfer.md}&Obstacle decomposition and transfer to general input\\\bottomrule
+\end{tabular}
+\end{center}
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
